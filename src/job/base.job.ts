@@ -39,7 +39,7 @@ export class BaseJob implements IBaseJob {
     if (this.running) return;
     this.running = true;
     try {
-      const blockchain_height = (await getWeb3().eth.getBlockNumber()) - 3;
+      const blockchain_height = await getWeb3().eth.getBlockNumber();
       let latest = this.latestBlock();
       while (latest <= blockchain_height) {
         const fromBlock = latest;
@@ -48,7 +48,7 @@ export class BaseJob implements IBaseJob {
             ? latest + this.maxQuery
             : blockchain_height;
         await this.process(fromBlock, toBlock);
-        latest = this.latestBlock() + 1;
+        latest = this.latestBlock();
       }
     } catch (error) {
       logger.error(`${this.name} error ${error.message}`);
