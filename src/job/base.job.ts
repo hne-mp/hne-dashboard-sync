@@ -39,16 +39,17 @@ export class BaseJob implements IBaseJob {
     if (this.running) return;
     this.running = true;
     try {
-      const blockchain_height = await getWeb3().eth.getBlockNumber();
+      let blockchain_height = (await getWeb3().eth.getBlockNumber()) - 10;
       let latest = this.latestBlock();
-      while (latest <= blockchain_height) {
+      let toBlock: any = latest;
+      while (latest <= blockchain_height && toBlock !== "latest") {
         const fromBlock = latest;
-        const toBlock =
+        toBlock =
           blockchain_height - latest >= this.maxQuery
             ? latest + this.maxQuery
-            : blockchain_height;
+            : "latest";
         await this.process(fromBlock, toBlock);
-        latest = this.latestBlock() > fromBlock ? this.latestBlock() : toBlock;
+        latest = toBlock === "latest" ? this.latestBlock() : toBlock;
       }
     } catch (error) {
       logger.error(`${this.name} error ${error.message}`);
