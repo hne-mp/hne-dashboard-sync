@@ -50,6 +50,7 @@ export class BaseJob implements IBaseJob {
             : "latest";
         await this.process(fromBlock, toBlock);
         latest = toBlock === "latest" ? this.latestBlock() : toBlock;
+        if (latest === fromBlock) latest++;
       }
     } catch (error) {
       logger.error(`${this.name} error ${error.message}`);
