@@ -48,7 +48,7 @@ export class BaseJob implements IBaseJob {
             ? latest + this.maxQuery
             : blockchain_height;
         await this.process(fromBlock, toBlock);
-        latest = this.latestBlock();
+        latest = this.latestBlock() > fromBlock ? this.latestBlock() : toBlock;
       }
     } catch (error) {
       logger.error(`${this.name} error ${error.message}`);
