@@ -50,7 +50,7 @@ export class Job {
 
       const matchingTx = new MpMatchingTxJob(
         "MpMatchingTxJob",
-        "*/3 * * * * *",
+        "*/6 * * * * *",
         () => SystemConfigService.instance.mpMatchingBlock,
         (block) => {
           SystemConfigService.instance.mpMatchingBlock = block;

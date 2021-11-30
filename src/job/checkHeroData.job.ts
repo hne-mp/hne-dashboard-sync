@@ -43,10 +43,12 @@ export class CheckInGameData extends BaseJob {
       );
       this.setLatestBlock(processList[processList.length - 1].blockNumber);
     }
-    if (events.length > 0) {
-      this.setLatestBlock(events[events.length - 1].blockNumber);
-    }
-    logger.debug(`${this.name} end at block ${fromBlock} - ${toBlock}`);
+    // if (events.length > 0) {
+    //   this.setLatestBlock(events[events.length - 1].blockNumber);
+    // }
+    logger.debug(
+      `${this.name} end at block ${fromBlock} - ${this.latestBlock()}`,
+    );
   };
 
   private async checkInGame(transfer: EventData) {
