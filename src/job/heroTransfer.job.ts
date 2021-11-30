@@ -48,7 +48,6 @@ export class HeroTransferJob extends BaseJob {
     logger.debug(`${this.name} end sync block ${fromBlock} - ${toBlock}`);
   };
   processHeroTransfer = async (transfer: EventData) => {
-    console.log("testHero - " + transfer.address);
     const web3 = getWeb3();
     const nftContract = contract_transfer();
     const return_value = transfer.returnValues;
