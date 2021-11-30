@@ -59,8 +59,16 @@ export class HeroTransferJob extends BaseJob {
     let issued_heroes;
     let heroInsert;
     let ascend;
-    let transferHistory;
-
+    let transferHistory: any;
+    transferHistory = {
+      token_id: return_value.tokenId,
+      tx_hash: transfer.transactionHash,
+      from_address: return_value.from,
+      to_address: return_value.to,
+      tx_fee: (Number(tx.gasUsed) * Number(transaction.gasPrice)) / 1e18,
+      create_time: Number(block.timestamp) * 10 ** 3,
+      block_number: transfer.blockNumber,
+    };
     //issued
     if (return_value.from === BURN_ADDRESS) {
       const latestLog = tx.logs[tx.logs.length - 1];
@@ -131,16 +139,14 @@ export class HeroTransferJob extends BaseJob {
         block_number: transfer.blockNumber,
       });
     } else {
-      let onMp = false;
       const latestLog = tx.logs[tx.logs.length - 1];
       if (latestLog.topics[0] === TOPICS.MATCH_TX) {
-        onMp = true;
+        transferHistory.buy_on_mp = true;
       }
       updateHero.push({
         token_id: return_value.tokenId,
         owner: return_value.to,
         block_number: transfer.blockNumber,
-        buy_on_mp: onMp,
       });
     }
 
@@ -201,15 +207,7 @@ export class HeroTransferJob extends BaseJob {
         `${this.name} issued hero ${ascend.token_id} - ${ascend.tier}`,
       );
     }
-    transferHistory = {
-      token_id: return_value.tokenId,
-      tx_hash: transfer.transactionHash,
-      from_address: return_value.from,
-      to_address: return_value.to,
-      tx_fee: (Number(tx.gasUsed) * Number(transaction.gasPrice)) / 1e18,
-      create_time: Number(block.timestamp) * 10 ** 3,
-      block_number: transfer.blockNumber,
-    };
+
     // if (transferHistory) {
     await createIfNotExist(
       TransferHero,
