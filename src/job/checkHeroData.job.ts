@@ -32,8 +32,8 @@ export class CheckInGameData extends BaseJob {
     const max = config.HERO_CHECK_PROCESS;
     for (let i = 0; i < list_transfer.length; i += max) {
       const trans = list_transfer[i];
-      if (trans.blockNumber > blockchain_height - 10) {
-        throw `${this.name} delay 10 block`;
+      if (trans.blockNumber > blockchain_height - 100) {
+        throw `${this.name} delay 100 block`;
       }
       const processList = list_transfer.slice(i, i + max);
       await threadPool(
