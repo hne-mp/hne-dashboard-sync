@@ -52,7 +52,7 @@ export class BaseJob implements IBaseJob {
             : "latest";
         await this.process(fromBlock, toBlock);
         latest = toBlock === "latest" ? this.latestBlock() : toBlock;
-        if (latest === fromBlock) this.setLatestBlock(this.latestBlock() + 1);
+        // if (latest === fromBlock) this.setLatestBlock(this.latestBlock() + 1);
       }
     } catch (error) {
       logger.error(`${this.name} error ${error.message}`);
