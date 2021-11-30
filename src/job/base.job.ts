@@ -1,6 +1,5 @@
 import { CronJob } from "cron";
 import { getWeb3 } from "../contract/contract";
-import SystemConfigService from "../service/SystemConfig.service";
 import { logger } from "../utils/logger";
 
 export interface IBaseJob {
@@ -17,6 +16,7 @@ export class BaseJob implements IBaseJob {
   timePattern: string;
   cronJob: CronJob;
   latestBlock: () => number;
+  setLatestBlock: (latest: number) => void;
   running: boolean;
   maxQuery: number;
   name: string;
@@ -26,6 +26,7 @@ export class BaseJob implements IBaseJob {
     name: string,
     timePattern: string,
     latestBlock: () => number,
+    setLatestBlock: (latest: number) => void,
     maxQuery: number,
   ) {
     this.timePattern = timePattern;
@@ -34,6 +35,7 @@ export class BaseJob implements IBaseJob {
     this.running = false;
     this.started = false;
     this.name = name;
+    this.setLatestBlock = setLatestBlock;
   }
   detect = async () => {
     if (this.running) return;
@@ -50,7 +52,7 @@ export class BaseJob implements IBaseJob {
             : "latest";
         await this.process(fromBlock, toBlock);
         latest = toBlock === "latest" ? this.latestBlock() : toBlock;
-        if (latest === fromBlock) latest++;
+        if (latest === fromBlock) this.setLatestBlock(this.latestBlock() + 1);
       }
     } catch (error) {
       logger.error(`${this.name} error ${error.message}`);

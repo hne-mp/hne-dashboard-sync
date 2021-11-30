@@ -22,13 +22,15 @@ export class MpMatchingTxJob extends BaseJob {
         toBlock,
       },
     );
-    SystemConfigService.instance.mpMatchingBlock = fromBlock;
+    this.setLatestBlock(fromBlock);
     const max = config.MATCH_TX_PROCESS;
     for (let i = 0; i < list_transfer.length; i += max) {
       const processList = list_transfer.slice(i, i + max);
       await threadPool(processList, this.processTx, config.MATCH_TX_PROCESS);
-      SystemConfigService.instance.mpMatchingBlock =
-        processList[processList.length - 1].blockNumber;
+      this.setLatestBlock(list_transfer[list_transfer.length - 1].blockNumber);
+    }
+    if (list_transfer.length > 0) {
+      this.setLatestBlock(list_transfer[list_transfer.length - 1].blockNumber);
     }
     logger.debug(`${this.name} end sync block ${fromBlock} - ${toBlock}`);
   };

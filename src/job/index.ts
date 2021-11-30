@@ -22,6 +22,9 @@ export class Job {
         "HeroTransferJob",
         "*/6 * * * * *",
         () => SystemConfigService.instance.heroTransferBlock,
+        (block) => {
+          SystemConfigService.instance.heroTransferBlock = block;
+        },
         config.maxQuery,
       );
 
@@ -29,6 +32,9 @@ export class Job {
         "CheckInGameData",
         "*/6 * * * * *",
         () => SystemConfigService.instance.checkHeroDataBlock,
+        (block) => {
+          SystemConfigService.instance.checkHeroDataBlock = block;
+        },
         config.maxQuery,
       );
 
@@ -36,6 +42,9 @@ export class Job {
         "HETransferDetect",
         "*/6 * * * * *",
         () => SystemConfigService.instance.hotWalletBlock,
+        (block) => {
+          SystemConfigService.instance.hotWalletBlock = block;
+        },
         config.maxQuery,
       );
 
@@ -43,6 +52,9 @@ export class Job {
         "MpMatchingTxJob",
         "*/3 * * * * *",
         () => SystemConfigService.instance.mpMatchingBlock,
+        (block) => {
+          SystemConfigService.instance.mpMatchingBlock = block;
+        },
         config.maxQuery,
       );
 
@@ -50,6 +62,9 @@ export class Job {
         "PackageNftJob",
         "*/6 * * * * *",
         () => SystemConfigService.instance.boxNftTransferBlock,
+        (block) => {
+          SystemConfigService.instance.boxNftTransferBlock = block;
+        },
         config.maxQuery,
       );
 

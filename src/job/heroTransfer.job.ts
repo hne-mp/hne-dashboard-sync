@@ -1,17 +1,12 @@
 import { Op } from "sequelize";
 import { EventData } from "web3-eth-contract";
 import config from "../config";
-import {
-  BURN_ADDRESS,
-  SequelizeUniqueConstraintError,
-  TOPICS,
-} from "../constant";
+import { BURN_ADDRESS, TOPICS } from "../constant";
 import { contract_transfer, getWeb3 } from "../contract/contract";
 import AscendHistory from "../model/AscendHistory";
 import HeroV2 from "../model/Hero.v2";
 import TransferHero from "../model/TransferHero";
 import { createIfNotExist } from "../service/Common.service";
-import SystemConfigService from "../service/SystemConfig.service";
 import { logger } from "../utils/logger";
 import { threadPool } from "../utils/parallel";
 import { BaseJob } from "./base.job";
@@ -24,7 +19,7 @@ export class HeroTransferJob extends BaseJob {
       toBlock,
     });
     logger.debug(`${this.name} ${list_transfer.length} event detected`);
-    SystemConfigService.instance.heroTransferBlock = fromBlock;
+    this.setLatestBlock(fromBlock);
     const max = config.HERO_TRANSFER_PROCESS;
 
     for (let i = 0; i < list_transfer.length; i += max) {
@@ -45,13 +40,15 @@ export class HeroTransferJob extends BaseJob {
         this.processHeroTransfer,
         config.HERO_TRANSFER_PROCESS,
       );
-      SystemConfigService.instance.heroTransferBlock =
-        processList[processList.length - 1].blockNumber;
+      this.setLatestBlock(processList[processList.length - 1].blockNumber);
     }
-
+    if (list_transfer.length > 0) {
+      this.setLatestBlock(list_transfer[list_transfer.length - 1].blockNumber);
+    }
     logger.debug(`${this.name} end sync block ${fromBlock} - ${toBlock}`);
   };
   processHeroTransfer = async (transfer: EventData) => {
+    console.log("testHero - " + transfer.address);
     const web3 = getWeb3();
     const nftContract = contract_transfer();
     const return_value = transfer.returnValues;
@@ -135,10 +132,16 @@ export class HeroTransferJob extends BaseJob {
         block_number: transfer.blockNumber,
       });
     } else {
+      let onMp = false;
+      const latestLog = tx.logs[tx.logs.length - 1];
+      if (latestLog.topics[0] === TOPICS.MATCH_TX) {
+        onMp = true;
+      }
       updateHero.push({
         token_id: return_value.tokenId,
         owner: return_value.to,
         block_number: transfer.blockNumber,
+        buy_on_mp: onMp,
       });
     }
 

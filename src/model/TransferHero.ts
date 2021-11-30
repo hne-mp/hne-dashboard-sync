@@ -25,6 +25,9 @@ TransferHero.init(
     tx_fee: {
       type: DataTypes.DECIMAL,
     },
+    buy_on_mp: {
+      type: DataTypes.BOOLEAN,
+    },
   },
   {
     // Other model options go here
@@ -39,6 +42,7 @@ TransferHero.init(
           "to_address",
           "token_id",
           "create_time",
+          "buy_on_mp",
         ],
       },
       {

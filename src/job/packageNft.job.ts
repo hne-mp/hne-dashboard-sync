@@ -17,7 +17,7 @@ export class PackageNftJob extends BaseJob {
       toBlock,
     });
     logger.debug(`${this.name} ${list_transfer.length} detected`);
-    SystemConfigService.instance.boxNftTransferBlock = fromBlock;
+    this.setLatestBlock(fromBlock);
     const max = config.BOX_TRANSFER_PROCESS;
     for (let i = 0; i < list_transfer.length; i += max) {
       const processList = list_transfer.slice(i, i + max);
@@ -26,8 +26,10 @@ export class PackageNftJob extends BaseJob {
         this.processTransfer,
         config.BOX_TRANSFER_PROCESS,
       );
-      SystemConfigService.instance.boxNftTransferBlock =
-        processList[processList.length - 1].blockNumber;
+      this.setLatestBlock(processList[processList.length - 1].blockNumber);
+    }
+    if (list_transfer.length > 0) {
+      this.setLatestBlock(list_transfer[list_transfer.length - 1].blockNumber);
     }
     logger.debug(`${this.name} end sync block ${fromBlock} - ${toBlock}`);
   };

@@ -9,7 +9,6 @@ import {
 import { contract_transfer, getWeb3 } from "../contract/contract";
 import HeroCheck from "../model/HeroCheck";
 import LogsService from "../service/Logs.service";
-import SystemConfigService from "../service/SystemConfig.service";
 import { send_message } from "../service/Telegram.Bot";
 import { logger } from "../utils/logger";
 import { threadPool } from "../utils/parallel";
@@ -28,12 +27,11 @@ export class CheckInGameData extends BaseJob {
         event.returnValues.from === BURN_ADDRESS ||
         event.returnValues.to === BURN_ADDRESS,
     );
-    SystemConfigService.instance.checkHeroDataBlock = fromBlock;
+    this.setLatestBlock(fromBlock);
     const blockchain_height = await getWeb3().eth.getBlockNumber();
     const max = config.HERO_CHECK_PROCESS;
     for (let i = 0; i < list_transfer.length; i += max) {
       const trans = list_transfer[i];
-      SystemConfigService.instance.checkHeroDataBlock = trans.blockNumber;
       if (trans.blockNumber > blockchain_height - 10) {
         throw `${this.name} delay 10 block`;
       }
@@ -43,8 +41,10 @@ export class CheckInGameData extends BaseJob {
         this.checkInGame,
         config.HERO_CHECK_PROCESS,
       );
-      SystemConfigService.instance.checkHeroDataBlock =
-        processList[processList.length - 1].blockNumber;
+      this.setLatestBlock(processList[processList.length - 1].blockNumber);
+    }
+    if (events.length > 0) {
+      this.setLatestBlock(events[events.length - 1].blockNumber);
     }
     logger.debug(`${this.name} end at block ${fromBlock} - ${toBlock}`);
   };
