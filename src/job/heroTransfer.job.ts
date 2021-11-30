@@ -45,7 +45,9 @@ export class HeroTransferJob extends BaseJob {
     if (list_transfer.length > 0) {
       this.setLatestBlock(list_transfer[list_transfer.length - 1].blockNumber);
     }
-    logger.debug(`${this.name} end sync block ${fromBlock} - ${toBlock}`);
+    logger.debug(
+      `${this.name} end sync block ${fromBlock} - ${this.latestBlock()}`,
+    );
   };
   processHeroTransfer = async (transfer: EventData) => {
     const web3 = getWeb3();
