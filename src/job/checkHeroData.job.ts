@@ -94,8 +94,8 @@ export class CheckInGameData extends BaseJob {
           error_message = `[HERO] fail to call external url ${ingame_hero.externalUrl} - response data: ${externalData} . 
           [Detail](${config.INGAME_HERO_API}/heroes/${token_id}).`;
         } else if (
-          ingame_hero.name?.replace(/\W/g, "").toLowerCase() !==
-            hero_data.name?.replace(/\W/g, "").toLowerCase() ||
+          // ingame_hero.name?.replace(/\W/g, "").toLowerCase() !==
+          //   hero_data.name?.replace(/\W/g, "").toLowerCase() ||
           externalData.HeroId !== hero_data.heroesNumber ||
           externalData.Tier !== hero_data.tier ||
           externalData.Race !== hero_data.race ||
