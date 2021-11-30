@@ -54,14 +54,22 @@ MatchTransaction.init(
     modelName: "MatchTransaction", // We need to choose the model name
     indexes: [
       {
-        fields: [
-          "block_number",
-          "create_time",
-          "payment_token",
-          "address",
-          "hero_number",
-          "hero_tier",
-        ],
+        fields: ["block_number"],
+      },
+      {
+        fields: ["create_time"],
+      },
+      {
+        fields: ["payment_token"],
+      },
+      {
+        fields: ["address"],
+      },
+      {
+        fields: ["hero_number"],
+      },
+      {
+        fields: ["hero_tier"],
       },
       {
         fields: ["tx_hash", "token_id", "seller"],

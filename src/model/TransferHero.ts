@@ -35,15 +35,19 @@ TransferHero.init(
     modelName: "TransferHero", // We need to choose the model name
     indexes: [
       {
-        fields: [
-          "tx_hash",
-          "block_number",
-          "from_address",
-          "to_address",
-          "token_id",
-          "create_time",
-          "buy_on_mp",
-        ],
+        fields: ["block_number"],
+      },
+      {
+        fields: ["from_address"],
+      },
+      {
+        fields: ["to_address"],
+      },
+      {
+        fields: ["create_time"],
+      },
+      {
+        fields: ["buy_on_mp"],
       },
       {
         fields: ["tx_hash", "token_id"],

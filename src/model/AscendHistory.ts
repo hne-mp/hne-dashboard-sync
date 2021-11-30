@@ -29,7 +29,10 @@ AscendHistory.init(
     modelName: "AscendHistory", // We need to choose the model name
     indexes: [
       {
-        fields: ["token_id", "tier", "block_number", "food"],
+        fields: ["tier"],
+      },
+      {
+        fields: ["block_number"],
       },
       {
         fields: ["token_id", "tx_hash", "food"],

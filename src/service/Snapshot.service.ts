@@ -119,7 +119,7 @@ class SnapshotService {
    */
   async update_spend_wallet() {
     await Promise.all(
-      ["SUMMON", "LIMIT_BREAK", "HOTWALLET"].map((t) => {
+      ["SUMMON", "LIMIT_BREAK", "HOTWALLET", "BUY_SLOT", "DEPOSIT"].map((t) => {
         return (async () => {
           const [tx, total, fee] = await Promise.all([
             HotWalletTransfer.count({ where: { type: t } }),

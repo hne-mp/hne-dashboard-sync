@@ -8,7 +8,7 @@ insert into "Snapshots" ("createdAt","updatedAt","key","value")
     date_trunc('hour', a."create_time") as time,
     sum("amount")  as "amount"
   from (select create_time,"amount", "type" from "HotWalletTransfers" 
-  where "type"  in ('SUMMON','LIMIT_BREAK','SPEND_FEE')) a
+  where "type"  in ('SUMMON','LIMIT_BREAK','SPEND_FEE','BUY_SLOT','DEPOSIT')) a
   group by  1
 )
 select
