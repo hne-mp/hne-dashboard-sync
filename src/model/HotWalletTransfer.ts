@@ -29,7 +29,7 @@ HotWalletTransfer.init(
       type: DataTypes.STRING,
     },
     type: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING(25),
     },
   },
   {

@@ -70,7 +70,7 @@ export class Job {
 
       const snapshot = new SnapshotJob("0 20 * * * *");
       const updateSystemConfigJob = new UpdateSystemConfigJob("*/6 * * * * *");
-      const fillHeroNullData = new FillHeroDataJob("0 */5 * * * *");
+      // const fillHeroNullData = new FillHeroDataJob("0 */5 * * * *");
 
       Job.jobs.push(transferJob);
       Job.jobs.push(checkHeroData);

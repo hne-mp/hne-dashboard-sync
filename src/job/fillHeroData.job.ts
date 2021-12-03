@@ -42,7 +42,7 @@ export class FillHeroDataJob implements IBaseJob {
     if (heroesNull.length <= 0) return;
     const beginTime = Date.now();
 
-    const max = 100;
+    const max = 50;
     for (let i = 0; i < heroesNull.length; i += max) {
       const heroes = heroesNull.slice(i, i + max);
       await threadPool(
@@ -71,7 +71,7 @@ export class FillHeroDataJob implements IBaseJob {
             logger.error(`${this.name} tokenId - ${hero.token_id} -  ${error}`);
           }
         },
-        100,
+        50,
       );
     }
 

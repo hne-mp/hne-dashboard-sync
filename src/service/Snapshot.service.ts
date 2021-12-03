@@ -5,6 +5,7 @@ import { QueryTypes } from "sequelize";
 import axios from "axios";
 import config from "../config";
 import { BURN_ADDRESS } from "../constant";
+import { logger } from "../utils/logger";
 
 const { MatchTransaction, HotWalletTransfer, PackageNFT, TransferHero } = model;
 
@@ -31,6 +32,9 @@ export const snapshotKey = {
   SPEND_FEE: "SPEND_FEE",
   HOTWALLET: "HOTWALLET",
   USER_SPEND: "USER_SPEND",
+  PLAYFAB_TOTAL_USER: "PLAYFAB_TOTAL_USER",
+  PLAYFAB_DAILY_ACTIVE: "PLAYFAB_DAILY_ACTIVE",
+  PLAYFAB_HE_INGAME: "PLAYFAB_HE_INGAME",
 };
 
 class SnapshotService {
@@ -119,7 +123,19 @@ class SnapshotService {
    */
   async update_spend_wallet() {
     await Promise.all(
-      ["SUMMON", "LIMIT_BREAK", "HOTWALLET", "BUY_SLOT", "DEPOSIT"].map((t) => {
+      [
+        "SUMMON",
+        "LIMIT_BREAK",
+        "HOTWALLET",
+        "BUY_SLOT",
+        "DEPOSIT",
+        "CLAN_MAP",
+        "EDIT_NAME",
+        "PURCHASE_ITEM_DUNGEON",
+        "REQUEST_HERO",
+        "UNION_BLESSING",
+        "SPEND_FEE",
+      ].map((t) => {
         return (async () => {
           const [tx, total, fee] = await Promise.all([
             HotWalletTransfer.count({ where: { type: t } }),
@@ -129,14 +145,17 @@ class SnapshotService {
           await Snapshot.bulkCreate([
             {
               key: `${t}_TX`,
+              group: t === "HOTWALLET" ? null : "SPEND",
               value: tx,
             },
             {
               key: `${t}_TOTAL`,
+              group: t === "HOTWALLET" ? null : "SPEND",
               value: total,
             },
             {
               key: `${t}_FEE`,
+              group: t === "HOTWALLET" ? null : "SPEND",
               value: fee,
             },
           ]);
@@ -317,6 +336,29 @@ class SnapshotService {
       },
     ]);
   }
+  async playfab() {
+    const totalUser: any = await axios.get(
+      `${config.PLAYFAB}/playfab/count_total_user`,
+    );
+    await Snapshot.create({
+      key: snapshotKey.PLAYFAB_TOTAL_USER,
+      value: totalUser.total_user,
+    });
+    const dailyActive: any = await axios.get(
+      `${config.PLAYFAB}/playfab/count_daily_active_user`,
+    );
+    await Snapshot.create({
+      key: snapshotKey.PLAYFAB_DAILY_ACTIVE,
+      value: dailyActive.daily_active_user,
+    });
+    const heIngame: any = await axios.get(
+      `${config.PLAYFAB}/playfab/get_he_ingame`,
+    );
+    await Snapshot.create({
+      key: snapshotKey.PLAYFAB_HE_INGAME,
+      value: heIngame.he_ingame,
+    });
+  }
 
   async snapshot_hot_wallet() {
     const spendFee = await connection.query(
@@ -354,6 +396,11 @@ class SnapshotService {
       this.update_total_user(),
       this.snapshot_hot_wallet(),
     ]);
+    try {
+      await this.playfab();
+    } catch (error) {
+      logger.error(error);
+    }
   }
 }
 export default SnapshotService;

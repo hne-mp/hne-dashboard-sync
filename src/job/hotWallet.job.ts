@@ -23,9 +23,6 @@ export class HETransferDetect extends BaseJob {
       await threadPool(processList, this.processTx, config.HOT_WALLET_PROCESS);
       this.setLatestBlock(processList[processList.length - 1].blockNumber);
     }
-    // if (list_transfer.length > 0) {
-    //   this.setLatestBlock(list_transfer[list_transfer.length - 1].blockNumber);
-    // }
     logger.debug(
       `${this.name} end sync block ${fromBlock} - ${this.latestBlock()}`,
     );
@@ -52,6 +49,16 @@ export class HETransferDetect extends BaseJob {
           type = "DEPOSIT";
         } else if (latestLog.topics[0] === TOPICS.BUY_SLOT) {
           type = "BUY_SLOT";
+        } else if (latestLog.topics[0] === TOPICS.CLAN_MAP) {
+          type = "CLAN_MAP";
+        } else if (latestLog.topics[0] === TOPICS.EDIT_NAME) {
+          type = "EDIT_NAME";
+        } else if (latestLog.topics[0] === TOPICS.PURCHASE_ITEM_DUNGEON) {
+          type = "PURCHASE_ITEM_DUNGEON";
+        } else if (latestLog.topics[0] === TOPICS.REQUEST_HERO) {
+          type = "REQUEST_HERO";
+        } else if (latestLog.topics[0] === TOPICS.UNION_BLESSING) {
+          type = "UNION_BLESSING";
         } else type = "SPEND_FEE";
       }
     }
