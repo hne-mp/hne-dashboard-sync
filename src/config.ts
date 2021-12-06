@@ -23,7 +23,7 @@ const config = {
   connectionString: process.env.CONNECT_STRING,
   INGAME_HERO_API: process.env.INGAME_HERO_API,
   MARKETPLACE_API: process.env.MARKETPLACE_API,
-  PLAYFAB: process.env.PLAYFAB ?? "localhost:5050",
+  PLAYFAB: process.env.PLAYFAB ?? "http://localhost:5050",
   bot: {
     BOT_TOKEN: process.env.BOT_TOKEN,
     ALLOW_IDS: process.env.ALLOW_IDS ? JSON.parse(process.env.ALLOW_IDS) : [],

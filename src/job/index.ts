@@ -68,7 +68,7 @@ export class Job {
         config.maxQuery,
       );
 
-      const snapshot = new SnapshotJob("0 0 * * * *");
+      const snapshot = new SnapshotJob("0 10 * * * *");
       const updateSystemConfigJob = new UpdateSystemConfigJob("*/6 * * * * *");
       // const fillHeroNullData = new FillHeroDataJob("0 */5 * * * *");
 
