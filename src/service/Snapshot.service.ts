@@ -337,27 +337,29 @@ class SnapshotService {
     ]);
   }
   async playfab() {
-    const totalUser: any = await axios.get(
-      `${config.PLAYFAB}/playfab/count_total_user`,
-    );
+    logger.info(`playfab begin snapshot`);
+    const totalUser: any = (
+      await axios.get(`${config.PLAYFAB}/playfab/count_total_user`)
+    ).data;
     await Snapshot.create({
       key: snapshotKey.PLAYFAB_TOTAL_USER,
       value: totalUser.total_user,
     });
-    const dailyActive: any = await axios.get(
-      `${config.PLAYFAB}/playfab/count_daily_active_user`,
-    );
+    const dailyActive: any = (
+      await axios.get(`${config.PLAYFAB}/playfab/count_daily_active_user`)
+    ).data;
     await Snapshot.create({
       key: snapshotKey.PLAYFAB_DAILY_ACTIVE,
       value: dailyActive.daily_active_user,
     });
-    const heIngame: any = await axios.get(
-      `${config.PLAYFAB}/playfab/get_he_ingame`,
-    );
+    const heIngame: any = (
+      await axios.get(`${config.PLAYFAB}/playfab/get_he_ingame`)
+    ).data;
     await Snapshot.create({
       key: snapshotKey.PLAYFAB_HE_INGAME,
       value: heIngame.he_ingame,
     });
+    logger.info(`playfab end snapshot`);
   }
 
   async snapshot_hot_wallet() {
@@ -399,6 +401,7 @@ class SnapshotService {
     try {
       await this.playfab();
     } catch (error) {
+      logger.error("playfab error " + error);
       logger.error(error);
     }
   }
