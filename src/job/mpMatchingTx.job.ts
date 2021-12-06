@@ -11,6 +11,7 @@ import MatchTransaction from "../model/MatchTransaction";
 import { SequelizeUniqueConstraintError } from "../constant";
 import SystemConfigService from "../service/SystemConfig.service";
 import config from "../config";
+import { send_message } from "../service/Telegram.Bot";
 
 export class MpMatchingTxJob extends BaseJob {
   process = async (fromBlock: number, toBlock: number) => {
@@ -46,13 +47,24 @@ export class MpMatchingTxJob extends BaseJob {
       config.CONTRACT.HERO_NFT_ADDRESS.toLowerCase()
         ? await nftContract.methods.heroesNumber(return_value.tokenId).call()
         : {};
+    const price = web3.utils.fromWei(return_value.price);
+    if (Number(price) < 10) {
+      await send_message(`
+        [Marketplace] matching transaction - detect low price ( < 10 HE).
+         TokenID: ${return_value.tokenId},
+         Price: ${price}HE,
+        [View on bscscan](${
+          "https://bscscan.com/tx/" + transfer.transactionHash
+        })
+      `);
+    }
     try {
       let obj = {
         token_id: return_value.tokenId,
         tx_hash: transfer.transactionHash,
         create_time: Number(block.timestamp) * 10 ** 3,
         block_number: transfer.blockNumber,
-        price: web3.utils.fromWei(return_value.price),
+        price: price,
         payment_token: return_value.paymentToken,
         seller: return_value.seller,
         buyer: return_value.buyer,
