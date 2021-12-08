@@ -16,6 +16,7 @@ export const snapshotKey = {
   HERO_ISSUED_TX: "HERO_ISSUED_TX",
   HERO_ISSUED_FEE: "HERO_ISSUED_FEE",
   TOTAL_USER: "TOTAL_USER",
+  TOTAL_HOLDER: "TOTAL_HOLDER",
   TOTAL_HERO_ISSUED: "TOTAL_HERO_ISSUED",
   TOTAL_HERO_BURNED: "TOTAL_HERO_BURNED",
   HERO: "HERO",
@@ -193,6 +194,18 @@ class SnapshotService {
     );
     await Snapshot.create({
       key: snapshotKey.TOTAL_USER,
+      value: user[0].total,
+    });
+  }
+
+  // holder
+  async snapshot_holder() {
+    const user: any = await connection.query(
+      `select count(distinct owner) as total from "HeroV2s"  where not is_burned `,
+      { type: QueryTypes.SELECT },
+    );
+    await Snapshot.create({
+      key: snapshotKey.TOTAL_HOLDER,
       value: user[0].total,
     });
   }
@@ -397,6 +410,7 @@ class SnapshotService {
       this.update_total_hero(),
       this.update_total_user(),
       this.snapshot_hot_wallet(),
+      this.snapshot_holder(),
     ]);
     try {
       await this.playfab();
