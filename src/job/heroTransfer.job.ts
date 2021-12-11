@@ -7,6 +7,8 @@ import AscendHistory from "../model/AscendHistory";
 import HeroV2 from "../model/Hero.v2";
 import TransferHero from "../model/TransferHero";
 import { createIfNotExist } from "../service/Common.service";
+import { send_message } from "../service/Telegram.Bot";
+import { TransferHeroService } from "../service/TransferHero.service";
 import { logger } from "../utils/logger";
 import { threadPool } from "../utils/parallel";
 import { BaseJob } from "./base.job";
@@ -93,6 +95,38 @@ export class HeroTransferJob extends BaseJob {
       const hero_data = await nftContract.methods
         .heroesNumber(issued_heroes.token_id)
         .call();
+      if (
+        issued_heroes.type === "SUMMON" &&
+        issued_heroes.type_issued === "Shard"
+      ) {
+        const heroService = new TransferHeroService();
+        const issuedHeroInDay = await heroService.getHeroSummon(
+          return_value.to,
+          hero_data?.tierBasic,
+        );
+        let msg = null;
+        if (hero_data?.tierBasic === "Rare" && issuedHeroInDay.length >= 2) {
+          msg = ` Summon >=3 Rare Shard in 24h detected.
+              ${issuedHeroInDay.map(
+                (h) => `[${h.token_id}](https://bscscan/tx/${h.tx_hash}) \n`,
+              )}
+              [${return_value.tokenId}](https://bscscan/tx/${
+            transfer.transactionHash
+          }`;
+        }
+        if (hero_data?.tierBasic === "Epic" && issuedHeroInDay.length >= 1) {
+          msg = ` Summon >=2 Epic Shard in 24h detected.
+              ${issuedHeroInDay.map(
+                (h) => `[${h.token_id}](https://bscscan/tx/${h.tx_hash}) \n`,
+              )}
+              [${return_value.tokenId}](https://bscscan/tx/${
+            transfer.transactionHash
+          })`;
+        }
+        if (msg) {
+          await send_message(msg);
+        }
+      }
       heroInsert = {
         token_id: issued_heroes.token_id,
         name: hero_data?.name,
