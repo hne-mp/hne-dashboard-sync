@@ -112,13 +112,17 @@ export class HeroTransferJob extends BaseJob {
         if (hero_data?.tierBasic === "Rare" && listToken.length > 2) {
           msg = `Summon ${listToken.length} Rare Shard in 24h detected.
             Heroes summon in 24h: ${listToken.join(",")}
-            [Wallet](https://bscscan.com/address/${return_value.to})
+            Wallet: [${return_value.to}](https://bscscan.com/address/${
+            return_value.to
+          })
           `;
         }
         if (hero_data?.tierBasic === "Epic" && listToken.length > 1) {
           msg = `Summon ${listToken.length} Epic Shard in 24h detected.
             Heroes summon in 24h: ${listToken.join(",")}
-            [Wallet](https://bscscan.com/address/${return_value.to})
+            Wallet: [${return_value.to}](https://bscscan.com/address/${
+            return_value.to
+          })
           `;
         }
         if (msg) {
