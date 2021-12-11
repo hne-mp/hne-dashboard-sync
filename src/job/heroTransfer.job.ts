@@ -126,6 +126,7 @@ export class HeroTransferJob extends BaseJob {
           })`;
         }
         if (msg) {
+          logger.info(msg);
           await send_message(msg);
         }
       }
