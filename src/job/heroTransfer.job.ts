@@ -106,21 +106,23 @@ export class HeroTransferJob extends BaseJob {
         );
         let msg = null;
         if (hero_data?.tierBasic === "Rare" && issuedHeroInDay.length >= 2) {
-          msg = ` Summon >=3 Rare Shard in 24h detected.
-              ${issuedHeroInDay.map(
-                (h) => `[${h.token_id}](https://bscscan/tx/${h.tx_hash}) \n`,
-              )}
-              [${return_value.tokenId}](https://bscscan/tx/${
-            transfer.transactionHash
+          msg = ` Summon ${
+            issuedHeroInDay.length + 1
+          } Rare Shard in 24h detected.
+            Heroes summon in 24h: ${issuedHeroInDay.map(
+              (h) => h.token_id + ",",
+            )}${return_value.tokenId}
+            [Wallet](https://bscscan.com/address/${return_value.to})
           }`;
         }
         if (hero_data?.tierBasic === "Epic" && issuedHeroInDay.length >= 1) {
-          msg = ` Summon >=2 Epic Shard in 24h detected.
-              ${issuedHeroInDay.map(
-                (h) => `[${h.token_id}](https://bscscan/tx/${h.tx_hash}) \n`,
-              )}
-              [${return_value.tokenId}](https://bscscan/tx/${
-            transfer.transactionHash
+          msg = ` Summon ${
+            issuedHeroInDay.length + 1
+          } Epic Shard in 24h detected.
+            Heroes summon in 24h: ${issuedHeroInDay.map(
+              (h) => h.token_id + ",",
+            )}${return_value.tokenId}
+            [Wallet](https://bscscan.com/address/${return_value.to})
           })`;
         }
         if (msg) {
