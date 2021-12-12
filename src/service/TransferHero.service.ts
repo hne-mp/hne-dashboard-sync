@@ -14,12 +14,12 @@ export class TransferHeroService {
   ): Promise<IHeroSummonShard[]> {
     const rs: IHeroSummonShard[] = await connection.query(
       `select b.token_id,a.tx_hash,a.create_time,b.tier_basic from 
-        (select tx_hash,create_time from "TransferHeros"  
+        (select tx_hash,create_time,token_id from "TransferHeros"  
         where from_address= $burned
         and to_address = $address
         and create_time  BETWEEN NOW() - INTERVAL '24 HOURS' AND NOW()
         ) a,
-        "HeroV2s" b where  a.tx_hash = b.tx_hash and b.type_issued = 'Shard' and b.tier_basic = $tierBasic`,
+        "HeroV2s" b where  a.tx_hash = b.tx_hash and a.token_id = b.token_id and b.type_issued = 'Shard' and b.tier_basic = $tierBasic`,
       {
         bind: { burned: BURN_ADDRESS, address: address, tierBasic: tierBasic },
         type: QueryTypes.SELECT,
