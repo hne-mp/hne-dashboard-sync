@@ -4,6 +4,11 @@ import HotWalletTransfer from "../model/HotWalletTransfer";
 import HeroCheckService from "../service/HeroCheck.service";
 import { hotWalletBalance } from "../service/HotWallet.service";
 import { logger } from "../utils/logger";
+import IngameService from "../service/Ingame.service";
+import { updateOrCreate } from "../service/Common.service";
+import Snapshot from "../model/Snapshot";
+import { snapshotKey } from "../service/Snapshot.service";
+import { timestampToDBQuery } from "../utils";
 var express = require("express");
 var router = express.Router();
 
@@ -64,6 +69,79 @@ router.get("/detect-spend-fee", async function (req: any, res: any, next: any) {
       row.type = type;
       await row.save();
     }
+    res.status(200).send();
+  } catch (error) {
+    logger.error(error);
+    res.status(500).send();
+  }
+});
+
+router.get("/snapShotInGame", async function (req: any, res: any, next: any) {
+  try {
+    const { from, to } = req.query;
+    const spend = await IngameService.heSpend(from, to);
+    const earn = await IngameService.heEarn(from, to);
+    for (let s of spend.Rows) {
+      await updateOrCreate(
+        Snapshot,
+        {
+          group: snapshotKey.SPEND_HE_INGAME,
+          key: s.context + "_spend",
+          createdAt: new Date(s.date.value),
+        },
+        {
+          group: snapshotKey.SPEND_HE_INGAME,
+          key: s.context + "_spend",
+          createdAt: new Date(s.date.value),
+          value: s.spend,
+        },
+      );
+      await updateOrCreate(
+        Snapshot,
+        {
+          group: snapshotKey.SPEND_HE_INGAME,
+          key: s.context + "_times",
+          createdAt: new Date(s.date.value),
+        },
+        {
+          group: snapshotKey.SPEND_HE_INGAME,
+          key: s.context + "_times",
+          createdAt: new Date(s.date.value),
+          value: s.times,
+        },
+      );
+    }
+    for (let s of earn.Rows) {
+      await updateOrCreate(
+        Snapshot,
+        {
+          group: snapshotKey.EARN_HE_INGAME,
+          key: s.context + "_earn",
+          createdAt: new Date(s.date.value),
+        },
+        {
+          group: snapshotKey.EARN_HE_INGAME,
+          key: s.context + "_earn",
+          createdAt: new Date(s.date.value),
+          value: s.earn,
+        },
+      );
+      await updateOrCreate(
+        Snapshot,
+        {
+          group: snapshotKey.EARN_HE_INGAME,
+          key: s.context + "_events",
+          createdAt: new Date(s.date.value),
+        },
+        {
+          group: snapshotKey.EARN_HE_INGAME,
+          key: s.context + "_events",
+          createdAt: new Date(s.date.value),
+          value: s.events,
+        },
+      );
+    }
+
     res.status(200).send();
   } catch (error) {
     logger.error(error);

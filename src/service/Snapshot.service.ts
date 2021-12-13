@@ -6,6 +6,8 @@ import axios from "axios";
 import config from "../config";
 import { BURN_ADDRESS } from "../constant";
 import { logger } from "../utils/logger";
+import IngameService from "./Ingame.service";
+import { updateOrCreate } from "./Common.service";
 
 const { MatchTransaction, HotWalletTransfer, PackageNFT, TransferHero } = model;
 
@@ -36,6 +38,8 @@ export const snapshotKey = {
   PLAYFAB_TOTAL_USER: "PLAYFAB_TOTAL_USER",
   PLAYFAB_DAILY_ACTIVE: "PLAYFAB_DAILY_ACTIVE",
   PLAYFAB_HE_INGAME: "PLAYFAB_HE_INGAME",
+  SPEND_HE_INGAME: "SPEND_HE_INGAME",
+  EARN_HE_INGAME: "EARN_HE_INGAME",
 };
 
 class SnapshotService {
@@ -396,6 +400,78 @@ class SnapshotService {
     await Snapshot.bulkCreate(hotWallet);
   }
 
+  async snapshotSpendEarnInGame() {
+    const now = new Date();
+    const fromDateString = `${now.getFullYear()}${now.getMonth() + 1}${
+      now.getDate() - 1
+    }`;
+    const toDateString = `${now.getFullYear()}${
+      now.getMonth() + 1
+    }${now.getDate()}`;
+    const spend = await IngameService.heSpend(fromDateString, toDateString);
+    const earn = await IngameService.heEarn(fromDateString, toDateString);
+    for (let s of spend.Rows) {
+      await updateOrCreate(
+        Snapshot,
+        {
+          group: snapshotKey.SPEND_HE_INGAME,
+          key: s.context + "_spend",
+          createdAt: new Date(s.date.value),
+        },
+        {
+          group: snapshotKey.SPEND_HE_INGAME,
+          key: s.context + "_spend",
+          createdAt: new Date(s.date.value),
+          value: s.spend,
+        },
+      );
+      await updateOrCreate(
+        Snapshot,
+        {
+          group: snapshotKey.SPEND_HE_INGAME,
+          key: s.context + "_times",
+          createdAt: new Date(s.date.value),
+        },
+        {
+          group: snapshotKey.SPEND_HE_INGAME,
+          key: s.context + "_times",
+          createdAt: new Date(s.date.value),
+          value: s.times,
+        },
+      );
+    }
+    for (let s of earn.Rows) {
+      await updateOrCreate(
+        Snapshot,
+        {
+          group: snapshotKey.EARN_HE_INGAME,
+          key: s.context + "_earn",
+          createdAt: new Date(s.date.value),
+        },
+        {
+          group: snapshotKey.EARN_HE_INGAME,
+          key: s.context + "_earn",
+          createdAt: new Date(s.date.value),
+          value: s.earn,
+        },
+      );
+      await updateOrCreate(
+        Snapshot,
+        {
+          group: snapshotKey.EARN_HE_INGAME,
+          key: s.context + "_events",
+          createdAt: new Date(s.date.value),
+        },
+        {
+          group: snapshotKey.EARN_HE_INGAME,
+          key: s.context + "_events",
+          createdAt: new Date(s.date.value),
+          value: s.events,
+        },
+      );
+    }
+  }
+
   async snapshot() {
     await Promise.all([
       // this.update_count_hero(),
@@ -416,6 +492,12 @@ class SnapshotService {
       await this.playfab();
     } catch (error) {
       logger.error("playfab error " + error);
+      logger.error(error);
+    }
+    try {
+      await this.snapshotSpendEarnInGame();
+    } catch (error) {
+      logger.error("snapshotSpendEarnInGame error " + error);
       logger.error(error);
     }
   }
