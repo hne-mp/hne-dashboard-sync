@@ -8,7 +8,6 @@ import IngameService from "../service/Ingame.service";
 import { updateOrCreate } from "../service/Common.service";
 import Snapshot from "../model/Snapshot";
 import { snapshotKey } from "../service/Snapshot.service";
-import { timestampToDBQuery } from "../utils";
 var express = require("express");
 var router = express.Router();
 
