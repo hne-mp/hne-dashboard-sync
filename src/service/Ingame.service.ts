@@ -4,6 +4,14 @@ import config from "../config";
 const client = axios.create({
   baseURL: config.INGAME_QUERY_API,
 });
+
+const beforeRequest = (conf: any) => {
+  Object.assign(conf.headers, {
+    "X-SecretKey": config.INGAME_QUERY_API_SECRET,
+  });
+  return conf;
+};
+client.interceptors.request.use(beforeRequest);
 client.interceptors.response.use(({ data }) => {
   const { success = true, errors } = data;
   if (success) return data;
@@ -11,10 +19,10 @@ client.interceptors.response.use(({ data }) => {
 });
 
 const heSpend = async (from: string, to: string): Promise<IInGameSpend> =>
-  await client.get(`/query/p/he/spend/${from}/${to}`);
+  await client.get(`/heroes-empires/spend/${from}/${to}`);
 
 const heEarn = async (from: string, to: string): Promise<IInGameEarn> =>
-  await client.get(`/query/p/he/earn/${from}/${to}`);
+  await client.get(`/heroes-empires/earn/${from}/${to}`);
 
 export interface IInGameEarn {
   Rows: {

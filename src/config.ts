@@ -24,6 +24,7 @@ const config = {
   INGAME_HERO_API: process.env.INGAME_HERO_API,
   MARKETPLACE_API: process.env.MARKETPLACE_API,
   INGAME_QUERY_API: process.env.INGAME_QUERY_API,
+  INGAME_QUERY_API_SECRET: process.env.INGAME_QUERY_API_SECRET,
   PLAYFAB: process.env.PLAYFAB ?? "http://localhost:5050",
   bot: {
     BOT_TOKEN: process.env.BOT_TOKEN,
