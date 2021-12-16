@@ -21,7 +21,7 @@ export class HETransferDetect extends BaseJob {
     for (let i = 0; i < list_transfer.length; i += max) {
       const processList = list_transfer.slice(i, i + max);
       await threadPool(processList, this.processTx, config.HOT_WALLET_PROCESS);
-      this.setLatestBlock(processList[processList.length - 1].blockNumber);
+      this.setLatestBlock(processList[processList.length - 1].blockNumber + 1);
     }
     logger.debug(
       `${this.name} end sync block ${fromBlock} - ${this.latestBlock()}`,

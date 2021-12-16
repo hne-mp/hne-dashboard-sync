@@ -28,7 +28,9 @@ export class MpMatchingTxJob extends BaseJob {
     for (let i = 0; i < list_transfer.length; i += max) {
       const processList = list_transfer.slice(i, i + max);
       await threadPool(processList, this.processTx, config.MATCH_TX_PROCESS);
-      this.setLatestBlock(list_transfer[list_transfer.length - 1].blockNumber);
+      this.setLatestBlock(
+        list_transfer[list_transfer.length - 1].blockNumber + 1,
+      );
     }
     // if (list_transfer.length > 0) {
     //   this.setLatestBlock(list_transfer[list_transfer.length - 1].blockNumber);

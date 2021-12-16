@@ -42,7 +42,7 @@ export class HeroTransferJob extends BaseJob {
         this.processHeroTransfer,
         config.HERO_TRANSFER_PROCESS,
       );
-      this.setLatestBlock(processList[processList.length - 1].blockNumber);
+      this.setLatestBlock(processList[processList.length - 1].blockNumber + 1);
     }
     // if (list_transfer.length > 0) {
     //   this.setLatestBlock(list_transfer[list_transfer.length - 1].blockNumber);

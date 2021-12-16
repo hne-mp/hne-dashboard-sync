@@ -23,9 +23,8 @@ export class CheckInGameData extends BaseJob {
       toBlock,
     });
     const list_transfer = events.filter(
-      (event) =>
-        event.returnValues.from === BURN_ADDRESS ||
-        event.returnValues.to === BURN_ADDRESS,
+      (event) => event.returnValues.from === BURN_ADDRESS,
+      // ||event.returnValues.to === BURN_ADDRESS,
     );
     this.setLatestBlock(fromBlock);
     const blockchain_height = await getWeb3().eth.getBlockNumber();
@@ -41,7 +40,7 @@ export class CheckInGameData extends BaseJob {
         this.checkInGame,
         config.HERO_CHECK_PROCESS,
       );
-      this.setLatestBlock(processList[processList.length - 1].blockNumber);
+      this.setLatestBlock(processList[processList.length - 1].blockNumber + 1);
     }
     // if (events.length > 0) {
     //   this.setLatestBlock(events[events.length - 1].blockNumber);
