@@ -38,8 +38,8 @@ export const snapshotKey = {
   PLAYFAB_TOTAL_USER: "PLAYFAB_TOTAL_USER",
   PLAYFAB_DAILY_ACTIVE: "PLAYFAB_DAILY_ACTIVE",
   PLAYFAB_HE_INGAME: "PLAYFAB_HE_INGAME",
-  SPEND_HE_INGAME: "SPEND_HE_INGAME",
-  EARN_HE_INGAME: "EARN_HE_INGAME",
+  SPEND_HE_INGAME: "SPEND_HE_INGAME_V2",
+  EARN_HE_INGAME: "EARN_HE_INGAME_V2",
 };
 
 class SnapshotService {
@@ -353,25 +353,23 @@ class SnapshotService {
       },
     ]);
   }
+
   async playfab() {
+    const client = axios.create({ baseURL: config.PLAYFAB, timeout: 300000 });
     logger.info(`playfab begin snapshot`);
-    const totalUser: any = (
-      await axios.get(`${config.PLAYFAB}/playfab/count_total_user`)
-    ).data;
+    const totalUser: any = (await client.get("/playfab/count_total_user")).data;
     await Snapshot.create({
       key: snapshotKey.PLAYFAB_TOTAL_USER,
       value: totalUser.total_user,
     });
     const dailyActive: any = (
-      await axios.get(`${config.PLAYFAB}/playfab/count_daily_active_user`)
+      await client.get("/playfab/count_daily_active_user")
     ).data;
     await Snapshot.create({
       key: snapshotKey.PLAYFAB_DAILY_ACTIVE,
       value: dailyActive.daily_active_user,
     });
-    const heIngame: any = (
-      await axios.get(`${config.PLAYFAB}/playfab/get_he_ingame`)
-    ).data;
+    const heIngame: any = (await client.get("/playfab/get_he_ingame")).data;
     await Snapshot.create({
       key: snapshotKey.PLAYFAB_HE_INGAME,
       value: heIngame.he_ingame,
@@ -408,35 +406,23 @@ class SnapshotService {
     const toDateString = `${now.getFullYear()}${
       now.getMonth() + 1
     }${now.getDate()}`;
-    const spend = await IngameService.heSpend(fromDateString, toDateString);
-    const earn = await IngameService.heEarn(fromDateString, toDateString);
+    // const spend = await IngameService.heSpend(fromDateString, toDateString);
+    // const earn = await IngameService.heEarn(fromDateString, toDateString);
+    const spend = await IngameService.heSpendNew(fromDateString, toDateString);
+    const earn = await IngameService.heEarnNew(fromDateString, toDateString);
     for (let s of spend.Rows) {
       await updateOrCreate(
         Snapshot,
         {
           group: snapshotKey.SPEND_HE_INGAME,
-          key: s.context + "_spend",
-          createdAt: new Date(s.date.value),
+          key: s[1],
+          createdAt: new Date(s[0]),
         },
         {
           group: snapshotKey.SPEND_HE_INGAME,
-          key: s.context + "_spend",
-          createdAt: new Date(s.date.value),
-          value: s.spend,
-        },
-      );
-      await updateOrCreate(
-        Snapshot,
-        {
-          group: snapshotKey.SPEND_HE_INGAME,
-          key: s.context + "_times",
-          createdAt: new Date(s.date.value),
-        },
-        {
-          group: snapshotKey.SPEND_HE_INGAME,
-          key: s.context + "_times",
-          createdAt: new Date(s.date.value),
-          value: s.times,
+          key: s[1],
+          createdAt: new Date(s[0]),
+          value: Math.abs(s[2]),
         },
       );
     }
@@ -445,28 +431,14 @@ class SnapshotService {
         Snapshot,
         {
           group: snapshotKey.EARN_HE_INGAME,
-          key: s.context + "_earn",
-          createdAt: new Date(s.date.value),
+          key: s[1],
+          createdAt: new Date(s[0]),
         },
         {
           group: snapshotKey.EARN_HE_INGAME,
-          key: s.context + "_earn",
-          createdAt: new Date(s.date.value),
-          value: s.earn,
-        },
-      );
-      await updateOrCreate(
-        Snapshot,
-        {
-          group: snapshotKey.EARN_HE_INGAME,
-          key: s.context + "_events",
-          createdAt: new Date(s.date.value),
-        },
-        {
-          group: snapshotKey.EARN_HE_INGAME,
-          key: s.context + "_events",
-          createdAt: new Date(s.date.value),
-          value: s.events,
+          key: s[1],
+          createdAt: new Date(s[0]),
+          value: s[2],
         },
       );
     }

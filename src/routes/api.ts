@@ -78,35 +78,21 @@ router.get("/detect-spend-fee", async function (req: any, res: any, next: any) {
 router.get("/snapShotInGame", async function (req: any, res: any, next: any) {
   try {
     const { from, to } = req.query;
-    const spend = await IngameService.heSpend(from, to);
-    const earn = await IngameService.heEarn(from, to);
+    const spend = await IngameService.heSpendNew(from, to);
+    const earn = await IngameService.heEarnNew(from, to);
     for (let s of spend.Rows) {
       await updateOrCreate(
         Snapshot,
         {
           group: snapshotKey.SPEND_HE_INGAME,
-          key: s.context + "_spend",
-          createdAt: new Date(s.date.value),
+          key: s[1],
+          createdAt: new Date(s[0]),
         },
         {
           group: snapshotKey.SPEND_HE_INGAME,
-          key: s.context + "_spend",
-          createdAt: new Date(s.date.value),
-          value: s.spend,
-        },
-      );
-      await updateOrCreate(
-        Snapshot,
-        {
-          group: snapshotKey.SPEND_HE_INGAME,
-          key: s.context + "_times",
-          createdAt: new Date(s.date.value),
-        },
-        {
-          group: snapshotKey.SPEND_HE_INGAME,
-          key: s.context + "_times",
-          createdAt: new Date(s.date.value),
-          value: s.times,
+          key: s[1],
+          createdAt: new Date(s[0]),
+          value: Math.abs(s[2]),
         },
       );
     }
@@ -115,32 +101,17 @@ router.get("/snapShotInGame", async function (req: any, res: any, next: any) {
         Snapshot,
         {
           group: snapshotKey.EARN_HE_INGAME,
-          key: s.context + "_earn",
-          createdAt: new Date(s.date.value),
+          key: s[1],
+          createdAt: new Date(s[0]),
         },
         {
           group: snapshotKey.EARN_HE_INGAME,
-          key: s.context + "_earn",
-          createdAt: new Date(s.date.value),
-          value: s.earn,
-        },
-      );
-      await updateOrCreate(
-        Snapshot,
-        {
-          group: snapshotKey.EARN_HE_INGAME,
-          key: s.context + "_events",
-          createdAt: new Date(s.date.value),
-        },
-        {
-          group: snapshotKey.EARN_HE_INGAME,
-          key: s.context + "_events",
-          createdAt: new Date(s.date.value),
-          value: s.events,
+          key: s[1],
+          createdAt: new Date(s[0]),
+          value: s[2],
         },
       );
     }
-
     res.status(200).send();
   } catch (error) {
     logger.error(error);

@@ -3,6 +3,7 @@ import config from "../config";
 
 const client = axios.create({
   baseURL: config.INGAME_QUERY_API,
+  timeout: 300000,
 });
 
 const beforeRequest = (conf: any) => {
@@ -24,6 +25,12 @@ const heSpend = async (from: string, to: string): Promise<IInGameSpend> =>
 const heEarn = async (from: string, to: string): Promise<IInGameEarn> =>
   await client.get(`/heroes-empires/earn/${from}/${to}`);
 
+const heSpendNew = async (from: string, to: string): Promise<IRowData> =>
+  await client.get(`/heroes-empires/playfab/spend/${from}/${to}`);
+
+const heEarnNew = async (from: string, to: string): Promise<IRowData> =>
+  await client.get(`/heroes-empires/playfab/earn/${from}/${to}`);
+
 export interface IInGameEarn {
   Rows: {
     date: {
@@ -44,8 +51,14 @@ export interface IInGameSpend {
     spend: number;
   }[];
 }
+export interface IRowData {
+  Columns: string[];
+  Rows: any[][];
+}
 
 export default {
   heSpend,
   heEarn,
+  heSpendNew,
+  heEarnNew,
 };
