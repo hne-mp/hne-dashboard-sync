@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import config from "../config";
 
 const client = axios.create({
@@ -6,16 +6,20 @@ const client = axios.create({
   timeout: 300000,
 });
 
-const beforeRequest = (conf: any) => {
+const beforeRequest = (conf: AxiosRequestConfig) => {
   Object.assign(conf.headers, {
     "X-SecretKey": config.INGAME_QUERY_API_SECRET,
   });
+  console.log(`ingame playfab before request: ` + conf.baseURL + conf.url);
   return conf;
 };
 client.interceptors.request.use(beforeRequest);
-client.interceptors.response.use(({ data }) => {
-  const { success = true, errors } = data;
-  if (success) return data;
+client.interceptors.response.use((res) => {
+  const { success = true, errors } = res.data;
+  console.log(
+    res.config.baseURL + res.config.url + " data: " + JSON.stringify(res.data),
+  );
+  if (success) return res.data;
   else return Promise.reject(errors);
 });
 
