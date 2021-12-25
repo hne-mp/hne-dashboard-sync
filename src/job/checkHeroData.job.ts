@@ -33,8 +33,8 @@ export class CheckInGameData extends BaseJob {
     for (let i = 0; i < list_transfer.length; i += max) {
       const trans = list_transfer[i];
       if (trans.blockNumber > blockchain_height - 100) {
-        // throw `${this.name} delay 100 block`;
-        return;
+        throw `${this.name} delay 100 block`;
+        // return;
       }
       const processList = list_transfer.slice(i, i + max);
       await threadPool(
