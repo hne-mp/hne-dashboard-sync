@@ -8,7 +8,7 @@ import {
 } from "../contract/contract";
 import { threadPool } from "../utils/parallel";
 import MatchTransaction from "../model/MatchTransaction";
-import { SequelizeUniqueConstraintError } from "../constant";
+import { SequelizeUniqueConstraintError, TOPICS } from "../constant";
 import SystemConfigService from "../service/SystemConfig.service";
 import config from "../config";
 import { send_message } from "../service/Telegram.Bot";
@@ -21,6 +21,7 @@ export class MpMatchingTxJob extends BaseJob {
       {
         fromBlock,
         toBlock,
+        topics: [TOPICS.MATCH_TX],
       },
     );
     this.setLatestBlock(fromBlock);

@@ -19,6 +19,7 @@ export class HeroTransferJob extends BaseJob {
     let list_transfer = await contract_transfer().getPastEvents("Transfer", {
       fromBlock,
       toBlock,
+      topics: [TOPICS.HEA_TRANSFER],
     });
     logger.debug(`${this.name} ${list_transfer.length} event detected`);
     this.setLatestBlock(fromBlock);
