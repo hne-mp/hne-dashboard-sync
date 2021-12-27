@@ -454,12 +454,17 @@ class SnapshotService {
       // this.update_marketplace_matching_tx(),
       // this.update_spend_wallet(),
       // this.update_total_package_nft(),
-      // this.update_marketplace_listing(),
       this.update_total_hero(),
       this.update_total_user(),
       this.snapshot_hot_wallet(),
       this.snapshot_holder(),
     ]);
+    try {
+      await this.update_marketplace_listing();
+    } catch (error) {
+      logger.error("update_marketplace_listing error " + error);
+      logger.error(error);
+    }
     try {
       await this.playfab();
     } catch (error) {
