@@ -40,26 +40,19 @@ export class BaseJob implements IBaseJob {
   detect = async () => {
     if (this.running) return;
     this.running = true;
-    try {
-      let blockchain_height = (await getWeb3().eth.getBlockNumber()) - 10;
-      let latest = this.latestBlock();
-      let toBlock: any = latest;
-      while (latest <= blockchain_height && toBlock !== "latest") {
-        const fromBlock = latest;
-        toBlock =
-          blockchain_height - latest >= this.maxQuery
-            ? latest + this.maxQuery
-            : "latest";
-        await this.process(fromBlock, toBlock);
-        latest = toBlock === "latest" ? this.latestBlock() : toBlock;
-        // if (latest === fromBlock) this.setLatestBlock(this.latestBlock() + 1);
-      }
-    } catch (error) {
-      logger.error(`${this.name} error ${error.message}`);
-      throw error;
-    } finally {
-      this.running = false;
+    let blockchain_height = (await getWeb3().eth.getBlockNumber()) - 10;
+    let latest = this.latestBlock();
+    let toBlock: any = latest;
+    while (latest <= blockchain_height && toBlock !== "latest") {
+      const fromBlock = latest;
+      toBlock =
+        blockchain_height - latest >= this.maxQuery
+          ? latest + this.maxQuery
+          : "latest";
+      await this.process(fromBlock, toBlock);
+      latest = toBlock === "latest" ? this.latestBlock() : toBlock;
     }
+    this.running = false;
   };
   start() {
     if (!this.cronJob) {
@@ -67,6 +60,8 @@ export class BaseJob implements IBaseJob {
         try {
           await this.detect();
         } catch (error) {
+          this.running = false;
+          logger.error(`${this.name} error ${error.message}`);
           logger.error(error);
         }
       });
