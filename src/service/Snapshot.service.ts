@@ -454,7 +454,7 @@ class SnapshotService {
       // this.update_marketplace_matching_tx(),
       // this.update_spend_wallet(),
       // this.update_total_package_nft(),
-      this.update_marketplace_listing(),
+      // this.update_marketplace_listing(),
       this.update_total_hero(),
       this.update_total_user(),
       this.snapshot_hot_wallet(),
