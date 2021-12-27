@@ -21,6 +21,7 @@ export class CheckInGameData extends BaseJob {
     const events = await contract_transfer().getPastEvents("Transfer", {
       fromBlock,
       toBlock,
+      topics: [TOPICS.HEA_TRANSFER],
     });
     const list_transfer = events.filter(
       (event) => event.returnValues.from === BURN_ADDRESS,
@@ -33,6 +34,7 @@ export class CheckInGameData extends BaseJob {
       const trans = list_transfer[i];
       if (trans.blockNumber > blockchain_height - 100) {
         throw `${this.name} delay 100 block`;
+        // return;
       }
       const processList = list_transfer.slice(i, i + max);
       await threadPool(

@@ -19,6 +19,7 @@ export class HeroTransferJob extends BaseJob {
     let list_transfer = await contract_transfer().getPastEvents("Transfer", {
       fromBlock,
       toBlock,
+      topics: [TOPICS.HEA_TRANSFER],
     });
     logger.debug(`${this.name} ${list_transfer.length} event detected`);
     this.setLatestBlock(fromBlock);
@@ -110,7 +111,9 @@ export class HeroTransferJob extends BaseJob {
           listToken.push(return_value.tokenId);
         }
         if (hero_data?.tierBasic === "Rare" && listToken.length > 2) {
-          msg = `Summon ${listToken.length} Rare Shard in 24h detected.
+          msg = `Summon ${
+            listToken.length
+          } Rare heroes from shard in 24h detected.
             Heroes summon in 24h: ${listToken.join(",")}
             Wallet: [${return_value.to}](https://bscscan.com/address/${
             return_value.to
@@ -118,7 +121,9 @@ export class HeroTransferJob extends BaseJob {
           `;
         }
         if (hero_data?.tierBasic === "Epic" && listToken.length > 1) {
-          msg = `Summon ${listToken.length} Epic Shard in 24h detected.
+          msg = `Summon ${
+            listToken.length
+          } Epic heroes from shard in 24h detected.
             Heroes summon in 24h: ${listToken.join(",")}
             Wallet: [${return_value.to}](https://bscscan.com/address/${
             return_value.to
