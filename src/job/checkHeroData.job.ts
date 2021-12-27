@@ -42,11 +42,11 @@ export class CheckInGameData extends BaseJob {
         this.checkInGame,
         config.HERO_CHECK_PROCESS,
       );
-      this.setLatestBlock(processList[processList.length - 1].blockNumber + 1);
+      this.setLatestBlock(processList[processList.length - 1].blockNumber);
     }
-    // if (events.length > 0) {
-    //   this.setLatestBlock(events[events.length - 1].blockNumber);
-    // }
+    if (events.length > 0) {
+      this.setLatestBlock(events[events.length - 1].blockNumber + 1);
+    }
     logger.debug(
       `${this.name} end at block ${fromBlock} - ${this.latestBlock()}`,
     );
