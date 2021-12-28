@@ -17,6 +17,7 @@ const config = {
   HOT_WALLET_PROCESS: Number(process.env.HOT_WALLET_PROCESS ?? 1),
   MATCH_TX_PROCESS: Number(process.env.MATCH_TX_PROCESS ?? 1),
   BOX_TRANSFER_PROCESS: Number(process.env.BOX_TRANSFER_PROCESS ?? 1),
+  GEAR_TRANSFER_PROCESS: Number(process.env.GEAR_TRANSFER_PROCESS ?? 1),
   startBlock: Number(process.env.STARTBLOCK) ?? 13672408,
   rpc: process.env.RPC,
   maxQuery: Number(process.env.MAX_QUERY) ?? 500,
@@ -38,6 +39,7 @@ const config = {
     PACK_NFT_CONTRACT_ADDRESS: process.env.PACK_NFT_CONTRACT_ADDRESS,
     HERO_NFT_ADDRESS: process.env.HERO_NFT_ADDRESS,
     HE_TOKEN_ADDRESS: process.env.HE_TOKEN_ADDRESS,
+    GEAR_NFT_ADDRESS: process.env.GEAR_NFT_ADDRESS,
   },
   ADDRESS: {
     HOT_WALLET_ADDRESS: process.env.HOT_WALLET_ADDRESS,

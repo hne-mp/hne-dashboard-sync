@@ -6,6 +6,7 @@ import { default as heAbi } from "./abi/HeToken.abi.json";
 import { default as marketAbi } from "./abi/MarketplaceAbi.json";
 import { default as nftPackAbi } from "./abi/PackageNftAbi.json";
 import { default as sellBoxAbi } from "./abi/SellBoxAbi.json";
+import { default as gearNftAbi } from "./abi/GearNftAbi.json";
 
 export const getWeb3 = () => new Web3(config.rpc);
 
@@ -13,6 +14,12 @@ export const contract_transfer = () =>
   new (getWeb3().eth.Contract)(
     heroTransferAbi as AbiItem[],
     config.CONTRACT.HERO_NFT_ADDRESS,
+  );
+
+export const contract_gear = () =>
+  new (getWeb3().eth.Contract)(
+    gearNftAbi as AbiItem[],
+    config.CONTRACT.GEAR_NFT_ADDRESS,
   );
 
 export const contract_he = () =>
