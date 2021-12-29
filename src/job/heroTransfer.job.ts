@@ -186,7 +186,11 @@ export class HeroTransferJob extends BaseJob {
       });
     } else {
       const latestLog = tx.logs[tx.logs.length - 1];
-      if (latestLog.topics[0] === TOPICS.MATCH_TX) {
+      if (
+        latestLog.topics[0] === TOPICS.MATCH_TX ||
+        latestLog.topics[0] === TOPICS.MATCH_TX_V2 ||
+        latestLog.topics[0] === TOPICS.WISH_ITEM
+      ) {
         transferHistory.buy_on_mp = true;
       }
       updateHero.push({
