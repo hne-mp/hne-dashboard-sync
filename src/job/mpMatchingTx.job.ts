@@ -21,7 +21,7 @@ export class MpMatchingTxJob extends BaseJob {
       {
         fromBlock,
         toBlock,
-        topics: [TOPICS.MATCH_TX],
+        topics: [TOPICS.MATCH_TX_V2],
       },
     );
     this.setLatestBlock(fromBlock);
