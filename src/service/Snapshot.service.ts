@@ -336,7 +336,9 @@ class SnapshotService {
 
   async update_marketplace_listing() {
     const listing = (
-      await axios.get(`${config.MARKETPLACE_API}/market-data/statistic`)
+      await axios.get(
+        `${config.MARKETPLACE_API}/market/api/market-data/statistic`,
+      )
     ).data;
     await Snapshot.bulkCreate([
       {
