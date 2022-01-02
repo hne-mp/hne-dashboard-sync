@@ -1,17 +1,16 @@
-import { BaseJob } from "./base.job";
 import { EventData } from "web3-eth-contract";
-import { logger } from "../utils/logger";
+import config from "../config";
+import { SequelizeUniqueConstraintError, TOPICS } from "../constant";
 import {
   contract_market,
   contract_transfer,
   getWeb3,
 } from "../contract/contract";
-import { threadPool } from "../utils/parallel";
 import MatchTransaction from "../model/MatchTransaction";
-import { SequelizeUniqueConstraintError, TOPICS } from "../constant";
-import SystemConfigService from "../service/SystemConfig.service";
-import config from "../config";
 import { send_message } from "../service/Telegram.Bot";
+import { logger } from "../utils/logger";
+import { threadPool } from "../utils/parallel";
+import { BaseJob } from "./base.job";
 
 export class MpMatchingTxJob extends BaseJob {
   process = async (fromBlock: number, toBlock: number) => {
@@ -25,12 +24,7 @@ export class MpMatchingTxJob extends BaseJob {
       },
     );
     this.setLatestBlock(fromBlock);
-    const max = config.MATCH_TX_PROCESS;
-    for (let i = 0; i < list_transfer.length; i += max) {
-      const processList = list_transfer.slice(i, i + max);
-      await threadPool(processList, this.processTx, config.MATCH_TX_PROCESS);
-      this.setLatestBlock(processList[processList.length - 1].blockNumber);
-    }
+    await threadPool(list_transfer, this.processTx);
     if (list_transfer.length > 0) {
       this.setLatestBlock(
         list_transfer[list_transfer.length - 1].blockNumber + 1,

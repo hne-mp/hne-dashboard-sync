@@ -3,8 +3,7 @@ import config from "../config";
 import { TOPICS } from "../constant";
 import { contract_he, getWeb3 } from "../contract/contract";
 import HotWalletTransfer from "../model/HotWalletTransfer";
-import { createIfNotExist, updateOrCreate } from "../service/Common.service";
-import SystemConfigService from "../service/SystemConfig.service";
+import { createIfNotExist } from "../service/Common.service";
 import { logger } from "../utils/logger";
 import { threadPool } from "../utils/parallel";
 import { BaseJob } from "./base.job";
@@ -18,12 +17,7 @@ export class HETransferDetect extends BaseJob {
       topics: [TOPICS.HE_TRANSFER],
     });
     this.setLatestBlock(fromBlock);
-    const max = config.HOT_WALLET_PROCESS;
-    for (let i = 0; i < list_transfer.length; i += max) {
-      const processList = list_transfer.slice(i, i + max);
-      await threadPool(processList, this.processTx, config.HOT_WALLET_PROCESS);
-      this.setLatestBlock(processList[processList.length - 1].blockNumber);
-    }
+    await threadPool(list_transfer, this.processTx);
     if (list_transfer.length > 0) {
       this.setLatestBlock(
         list_transfer[list_transfer.length - 1].blockNumber + 1,

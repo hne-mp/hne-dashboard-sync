@@ -25,25 +25,18 @@ export class CheckInGameData extends BaseJob {
     });
     const list_transfer = events.filter(
       (event) => event.returnValues.from === BURN_ADDRESS,
-      // ||event.returnValues.to === BURN_ADDRESS,
     );
     this.setLatestBlock(fromBlock);
     const blockchain_height = await getWeb3().eth.getBlockNumber();
-    const max = config.HERO_CHECK_PROCESS;
-    for (let i = 0; i < list_transfer.length; i += max) {
-      const trans = list_transfer[i];
-      if (trans.blockNumber > blockchain_height - 100) {
-        throw `${this.name} delay 100 block`;
-        // return;
-      }
-      const processList = list_transfer.slice(i, i + max);
-      await threadPool(
-        processList,
-        this.checkInGame,
-        config.HERO_CHECK_PROCESS,
-      );
-      this.setLatestBlock(processList[processList.length - 1].blockNumber);
+    const latest =
+      list_transfer.length > 0
+        ? list_transfer[list_transfer.length - 1].blockNumber
+        : 0;
+    if (latest === 0 || latest > blockchain_height - 100) {
+      throw new Error(`${this.name} delay 100 block`);
     }
+    await threadPool(list_transfer, this.checkInGame);
+
     if (events.length > 0) {
       this.setLatestBlock(events[events.length - 1].blockNumber + 1);
     }
