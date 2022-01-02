@@ -1,44 +1,50 @@
-import { Op } from "sequelize";
 import { EventData } from "web3-eth-contract";
-import config from "../config";
 import { BURN_ADDRESS, TOPICS } from "../constant";
-import { contract_transfer, getWeb3 } from "../contract/contract";
-import AscendHistory from "../model/AscendHistory";
-import Gear from "../model/Gear";
-import HeroV2 from "../model/Hero.v2";
-import TransferHero from "../model/TransferHero";
+import {
+  contract_gear,
+  contract_gear_ascend,
+  getWeb3,
+} from "../contract/contract";
+import Gear, { IGear } from "../model/Gear";
+import TransferGear, { ITransferGear } from "../model/TransferGear";
 import { createIfNotExist } from "../service/Common.service";
-import { send_message } from "../service/Telegram.Bot";
-import { TransferHeroService } from "../service/TransferHero.service";
 import { logger } from "../utils/logger";
 import { threadPool } from "../utils/parallel";
 import { BaseJob } from "./base.job";
-import { IGear } from "../model/Gear";
-import TransferGear, { ITransferGear } from "../model/TransferGear";
 
-export class HeroTransferJob extends BaseJob {
+export class GearTransferJob extends BaseJob {
   process = async (fromBlock: number, toBlock: number) => {
     logger.debug(`${this.name} begin sync block ${fromBlock} - ${toBlock}`);
-    let transfer_events = await contract_transfer().getPastEvents("Transfer", {
+    const transfer_events = await contract_gear().getPastEvents("Transfer", {
       fromBlock,
       toBlock,
       topics: [TOPICS.GEAR_TRANSFER],
     });
-    let list_issued = await contract_transfer().getPastEvents("mintgear", {
+    const mint_events = await contract_gear_ascend().getPastEvents("mintgear", {
       fromBlock,
       toBlock,
       topics: [TOPICS.MINT_GEAR],
     });
+    const ascend_events = await contract_gear_ascend().getPastEvents("ascend", {
+      fromBlock,
+      toBlock,
+      topics: [TOPICS.ASCEND_GEAR],
+    });
 
     this.setLatestBlock(fromBlock);
-    const list_transfers = transfer_events.find(
+    const list_transfers = transfer_events.filter(
       (event) =>
         event.returnValues.from != BURN_ADDRESS &&
         event.returnValues.to != BURN_ADDRESS,
     );
-    const list_burned = transfer_events.find(
+    const list_burned = transfer_events.filter(
       (event) => event.returnValues.to == BURN_ADDRESS,
     );
+
+    await this.processIssued(mint_events);
+    await this.processTransfer(list_transfers);
+    await this.processAscend(ascend_events);
+    await this.processBurn(list_burned);
 
     if (transfer_events.length > 0) {
       this.setLatestBlock(
@@ -50,9 +56,13 @@ export class HeroTransferJob extends BaseJob {
     );
   };
   processIssued = async (events: EventData[]) => {
+    logger.info(`${this.name} issue ${events.length} gears`);
     await threadPool(events, async (event: EventData) => {
       const { tokenId, gearName, gearType, gearClass, gearTier, Owner } =
         event.returnValues;
+      logger.info(
+        `${this.name} issue ${tokenId} at block ${event.blockNumber}`,
+      );
       const newGear: IGear = {
         block_number: event.blockNumber,
         class: gearClass,
@@ -99,6 +109,9 @@ export class HeroTransferJob extends BaseJob {
   processTransfer = async (events: EventData[]) => {
     await threadPool(events, async (event: EventData) => {
       const { from, to, tokenId } = event.returnValues;
+      logger.info(
+        `${this.name} transfer ${tokenId} to ${to} at block ${event.blockNumber}`,
+      );
       await Gear.update(
         {
           owner: to,
@@ -107,8 +120,82 @@ export class HeroTransferJob extends BaseJob {
           where: { token_id: tokenId },
         },
       );
+      const web3 = getWeb3();
+      const transaction = await web3.eth.getTransaction(event.transactionHash);
+      const tx = await web3.eth.getTransactionReceipt(event.transactionHash);
+
+      const newTransfer: ITransferGear = {
+        block_number: event.blockNumber,
+        buy_on_mp: false,
+        create_time: new Date(),
+        from_address: from,
+        to_address: to,
+        token_id: tokenId,
+        tx_fee: (Number(tx.gasUsed) * Number(transaction.gasPrice)) / 1e18,
+        tx_hash: event.transactionHash,
+      };
+
+      await createIfNotExist(
+        TransferGear,
+        {
+          tx_hash: event.transactionHash,
+          token_id: tokenId,
+        },
+        newTransfer,
+      );
     });
   };
-  processAscend = async (events: EventData[]) => {};
-  processBurn = async (events: EventData[]) => {};
+  processAscend = async (events: EventData[]) => {
+    await threadPool(events, async (event: EventData) => {
+      const { tokenId, tier } = event.returnValues;
+      logger.info(
+        `${this.name} ascend ${tokenId} to ${tier} at block ${event.blockNumber}`,
+      );
+      await Gear.update(
+        {
+          tier: tier,
+        },
+        {
+          where: { token_id: tokenId },
+        },
+      );
+    });
+  };
+  processBurn = async (events: EventData[]) => {
+    await threadPool(events, async (event: EventData) => {
+      const { tokenId, from, to } = event.returnValues;
+      logger.info(`${this.name} burn ${tokenId} at block ${event.blockNumber}`);
+      await Gear.update(
+        {
+          is_burned: true,
+        },
+        {
+          where: { token_id: tokenId },
+        },
+      );
+      const web3 = getWeb3();
+      const transaction = await web3.eth.getTransaction(event.transactionHash);
+      const tx = await web3.eth.getTransactionReceipt(event.transactionHash);
+
+      const newTransfer: ITransferGear = {
+        block_number: event.blockNumber,
+        buy_on_mp: false,
+        create_time: new Date(),
+        from_address: from,
+        to_address: to,
+        token_id: tokenId,
+        tx_fee: (Number(tx.gasUsed) * Number(transaction.gasPrice)) / 1e18,
+        tx_hash: event.transactionHash,
+      };
+
+      await createIfNotExist(
+        TransferGear,
+        {
+          tx_hash: event.transactionHash,
+          token_id: tokenId,
+        },
+        newTransfer,
+      );
+    });
+  };
 }
