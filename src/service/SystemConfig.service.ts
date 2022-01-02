@@ -22,6 +22,7 @@ class SystemConfigService {
           heroTransferBlock: defaultConfig.startBlock,
           hotWalletBlock: defaultConfig.startBlock,
           mpMatchingBlock: defaultConfig.startBlock,
+          gearTransferBlock: defaultConfig.startBlock,
         };
         await Snapshot.create({
           key: SYSTEM_CONFIG_KEY,

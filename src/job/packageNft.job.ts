@@ -1,10 +1,8 @@
 import { EventData } from "web3-eth-contract";
-import config from "../config";
 import { BURN_ADDRESS } from "../constant";
 import { contract_pack_nft, getWeb3 } from "../contract/contract";
 import PackageNFT from "../model/PackageNFT";
 import { createIfNotExist } from "../service/Common.service";
-import SystemConfigService from "../service/SystemConfig.service";
 import { logger } from "../utils/logger";
 import { threadPool } from "../utils/parallel";
 import { BaseJob } from "./base.job";
@@ -18,16 +16,7 @@ export class PackageNftJob extends BaseJob {
     });
     logger.debug(`${this.name} ${list_transfer.length} detected`);
     this.setLatestBlock(fromBlock);
-    const max = config.BOX_TRANSFER_PROCESS;
-    for (let i = 0; i < list_transfer.length; i += max) {
-      const processList = list_transfer.slice(i, i + max);
-      await threadPool(
-        processList,
-        this.processTransfer,
-        config.BOX_TRANSFER_PROCESS,
-      );
-      this.setLatestBlock(processList[processList.length - 1].blockNumber);
-    }
+    await threadPool(list_transfer, this.processTransfer);
     if (list_transfer.length > 0) {
       this.setLatestBlock(
         list_transfer[list_transfer.length - 1].blockNumber + 1,

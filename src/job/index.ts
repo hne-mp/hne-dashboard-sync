@@ -3,9 +3,8 @@ import config from "../config";
 import SystemConfigService from "../service/SystemConfig.service";
 import { IBaseJob } from "./base.job";
 import { CheckInGameData } from "./checkHeroData.job";
-import { FillHeroDataJob } from "./fillHeroData.job";
+import { GearTransferJob } from "./gearTransfer.job";
 import { HeroTransferJob } from "./heroTransfer.job";
-import { HeroTransferFixJob } from "./heroTransferFix.job";
 import { HETransferDetect } from "./hotWallet.job";
 import { MpMatchingTxJob } from "./mpMatchingTx.job";
 import { PackageNftJob } from "./packageNft.job";
@@ -24,6 +23,19 @@ export class Job {
         () => SystemConfigService.instance.heroTransferBlock,
         (block) => {
           SystemConfigService.instance.heroTransferBlock = block;
+        },
+        config.maxQuery,
+      );
+
+      if (!SystemConfigService.instance.gearTransferBlock) {
+        SystemConfigService.instance.gearTransferBlock = config.gearStartBlock;
+      }
+      const transferGearJob = new GearTransferJob(
+        "GearTransferJob",
+        "*/7 * * * * *",
+        () => SystemConfigService.instance.gearTransferBlock,
+        (block) => {
+          SystemConfigService.instance.gearTransferBlock = block;
         },
         config.maxQuery,
       );
@@ -70,7 +82,7 @@ export class Job {
 
       const snapshot = new SnapshotJob("0 10 * * * *");
       const updateSystemConfigJob = new UpdateSystemConfigJob("*/6 * * * * *");
-      // const fillHeroNullData = new FillHeroDataJob("0 */5 * * * *");
+      // const fillHeroNullData = new   FillHeroDataJob("0 */5 * * * *");
 
       Job.jobs.push(transferJob);
       Job.jobs.push(checkHeroData);
@@ -80,17 +92,7 @@ export class Job {
       Job.jobs.push(snapshot);
       Job.jobs.push(updateSystemConfigJob);
       // Job.jobs.push(fillHeroNullData);
-
-      // if (!SystemConfigService.instance.heroTransferFixBlock) {
-      //   SystemConfigService.instance.heroTransferFixBlock = 12795377;
-      // }
-      // const heroFixData = new HeroTransferFixJob(
-      //   "HeroFixDataJob",
-      //   "*/3 * * * * *",
-      //   () => SystemConfigService.instance.heroTransferFixBlock,
-      //   config.maxQuery,
-      // );
-      // Job.jobs.push(heroFixData);
+      Job.jobs.push(transferGearJob);
     }
   }
   updateSystemConfigJob: CronJob;

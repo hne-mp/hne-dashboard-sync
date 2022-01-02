@@ -1,6 +1,5 @@
 import { Op } from "sequelize";
 import { EventData } from "web3-eth-contract";
-import config from "../config";
 import { BURN_ADDRESS, TOPICS } from "../constant";
 import { contract_transfer, getWeb3 } from "../contract/contract";
 import AscendHistory from "../model/AscendHistory";
@@ -23,28 +22,16 @@ export class HeroTransferJob extends BaseJob {
     });
     logger.debug(`${this.name} ${list_transfer.length} event detected`);
     this.setLatestBlock(fromBlock);
-    const max = config.HERO_TRANSFER_PROCESS;
 
-    for (let i = 0; i < list_transfer.length; i += max) {
-      const processList = list_transfer.slice(i, i + max);
-      const issueEvents = processList.filter(
-        (e) => e.returnValues.from === BURN_ADDRESS,
-      );
-      const otherEvent = processList.filter(
-        (e) => e.returnValues.from !== BURN_ADDRESS,
-      );
-      await threadPool(
-        issueEvents,
-        this.processHeroTransfer,
-        config.HERO_TRANSFER_PROCESS,
-      );
-      await threadPool(
-        otherEvent,
-        this.processHeroTransfer,
-        config.HERO_TRANSFER_PROCESS,
-      );
-      this.setLatestBlock(processList[processList.length - 1].blockNumber);
-    }
+    const issueEvents = list_transfer.filter(
+      (e) => e.returnValues.from === BURN_ADDRESS,
+    );
+    const otherEvent = list_transfer.filter(
+      (e) => e.returnValues.from !== BURN_ADDRESS,
+    );
+    await threadPool(issueEvents, this.processHeroTransfer);
+    await threadPool(otherEvent, this.processHeroTransfer);
+
     if (list_transfer.length > 0) {
       this.setLatestBlock(
         list_transfer[list_transfer.length - 1].blockNumber + 1,

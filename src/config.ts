@@ -12,12 +12,8 @@ const config = {
   log: {
     dir: process.env.LOG_DIR ?? "../logs",
   },
-  HERO_TRANSFER_PROCESS: Number(process.env.HERO_TRANSFER_PROCESS ?? 1),
-  HERO_CHECK_PROCESS: Number(process.env.HERO_CHECK_PROCESS ?? 1),
-  HOT_WALLET_PROCESS: Number(process.env.HOT_WALLET_PROCESS ?? 1),
-  MATCH_TX_PROCESS: Number(process.env.MATCH_TX_PROCESS ?? 1),
-  BOX_TRANSFER_PROCESS: Number(process.env.BOX_TRANSFER_PROCESS ?? 1),
-  startBlock: Number(process.env.STARTBLOCK) ?? 13672408,
+  startBlock: Number(process.env.STARTBLOCK),
+  gearStartBlock: Number(process.env.GEAR_START_BLOCK),
   rpc: process.env.RPC,
   maxQuery: Number(process.env.MAX_QUERY) ?? 500,
   connectionString: process.env.CONNECT_STRING,
@@ -38,6 +34,8 @@ const config = {
     PACK_NFT_CONTRACT_ADDRESS: process.env.PACK_NFT_CONTRACT_ADDRESS,
     HERO_NFT_ADDRESS: process.env.HERO_NFT_ADDRESS,
     HE_TOKEN_ADDRESS: process.env.HE_TOKEN_ADDRESS,
+    GEAR_NFT_ADDRESS: process.env.GEAR_NFT_ADDRESS,
+    GEAR_NFT_ASCEND_ADDRESS: process.env.GEAR_NFT_ASCEND_ADDRESS,
   },
   ADDRESS: {
     HOT_WALLET_ADDRESS: process.env.HOT_WALLET_ADDRESS,

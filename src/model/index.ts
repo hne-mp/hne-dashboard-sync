@@ -9,6 +9,8 @@ import TransferHero from "./TransferHero";
 import Wallet from "./Wallet";
 import AscendHistory from "./AscendHistory";
 import { logger } from "../utils/logger";
+import Gear from "./Gear";
+import TransferGear from "./TransferGear";
 export default {
   HotWalletTransfer,
   MatchTransaction,
@@ -21,6 +23,8 @@ export default {
   AscendHistory,
   initModel: async () => {
     try {
+      await TransferGear.sync();
+      await Gear.sync();
       await HeroV2.sync();
       await MatchTransaction.sync();
       await Snapshot.sync();
