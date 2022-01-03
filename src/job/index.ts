@@ -82,7 +82,6 @@ export class Job {
 
       const snapshot = new SnapshotJob("0 10 * * * *");
       const updateSystemConfigJob = new UpdateSystemConfigJob("*/6 * * * * *");
-      // const fillHeroNullData = new   FillHeroDataJob("0 */5 * * * *");
 
       Job.jobs.push(transferJob);
       Job.jobs.push(checkHeroData);
@@ -91,7 +90,6 @@ export class Job {
       Job.jobs.push(packNftJob);
       Job.jobs.push(snapshot);
       Job.jobs.push(updateSystemConfigJob);
-      // Job.jobs.push(fillHeroNullData);
       Job.jobs.push(transferGearJob);
     }
   }

@@ -36,20 +36,28 @@ export class MpMatchingTxJob extends BaseJob {
   };
   processTx = async (transfer: EventData) => {
     const web3 = getWeb3();
-    const return_value = transfer.returnValues;
+    const {
+      contractAddress,
+      tokenId,
+      price,
+      paymentToken,
+      buyer,
+      seller,
+      feeInWei,
+    } = transfer.returnValues;
     const nftContract = contract_transfer();
     const block = await web3.eth.getBlock(transfer.blockNumber);
     const heroData =
-      return_value.contractAddress.toLowerCase() ===
+      contractAddress.toLowerCase() ===
       config.CONTRACT.HERO_NFT_ADDRESS.toLowerCase()
-        ? await nftContract.methods.heroesNumber(return_value.tokenId).call()
+        ? await nftContract.methods.heroesNumber(tokenId).call()
         : {};
-    const price = web3.utils.fromWei(return_value.price);
-    if (Number(price) < 10) {
+    const priceFromWei = web3.utils.fromWei(price);
+    if (Number(priceFromWei) < 10) {
       await send_message(`
         [Marketplace] matching transaction - detect low price ( < 10 HE).
-         TokenID: ${return_value.tokenId},
-         Price: ${price}HE,
+         TokenID: ${tokenId},
+         Price: ${priceFromWei}HE,
         [View on bscscan](${
           "https://bscscan.com/tx/" + transfer.transactionHash
         })
@@ -57,16 +65,16 @@ export class MpMatchingTxJob extends BaseJob {
     }
     try {
       let obj = {
-        token_id: return_value.tokenId,
+        token_id: tokenId,
         tx_hash: transfer.transactionHash,
         create_time: Number(block.timestamp) * 10 ** 3,
         block_number: transfer.blockNumber,
-        price: price,
-        payment_token: return_value.paymentToken,
-        seller: return_value.seller,
-        buyer: return_value.buyer,
-        market_fee: web3.utils.fromWei(return_value.feeInWei),
-        address: return_value.contractAddress,
+        price: priceFromWei,
+        payment_token: paymentToken,
+        seller: seller,
+        buyer: buyer,
+        market_fee: web3.utils.fromWei(feeInWei),
+        address: contractAddress,
         hero_number: heroData?.heroesNumber,
         hero_name: heroData?.name,
         hero_race: heroData?.race,

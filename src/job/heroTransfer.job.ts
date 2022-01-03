@@ -20,17 +20,27 @@ export class HeroTransferJob extends BaseJob {
       toBlock,
       topics: [TOPICS.HEA_TRANSFER],
     });
+
     logger.debug(`${this.name} ${list_transfer.length} event detected`);
     this.setLatestBlock(fromBlock);
 
     const issueEvents = list_transfer.filter(
       (e) => e.returnValues.from === BURN_ADDRESS,
     );
-    const otherEvent = list_transfer.filter(
-      (e) => e.returnValues.from !== BURN_ADDRESS,
+
+    const burnEvents = list_transfer.filter(
+      (e) => e.returnValues.to === BURN_ADDRESS,
     );
-    await threadPool(issueEvents, this.processHeroTransfer);
-    await threadPool(otherEvent, this.processHeroTransfer);
+
+    const transferEvents = list_transfer.filter(
+      (e) =>
+        e.returnValues.from !== BURN_ADDRESS &&
+        e.returnValues.to !== BURN_ADDRESS,
+    );
+
+    await this.processIssued(issueEvents);
+    await this.processTransfer(transferEvents);
+    await this.processBurn(burnEvents);
 
     if (list_transfer.length > 0) {
       this.setLatestBlock(
@@ -41,30 +51,16 @@ export class HeroTransferJob extends BaseJob {
       `${this.name} end sync block ${fromBlock} - ${this.latestBlock()}`,
     );
   };
-  processHeroTransfer = async (transfer: EventData) => {
-    const web3 = getWeb3();
-    const nftContract = contract_transfer();
-    const return_value = transfer.returnValues;
-    const transaction = await web3.eth.getTransaction(transfer.transactionHash);
-    const tx = await web3.eth.getTransactionReceipt(transfer.transactionHash);
-    const block = await web3.eth.getBlock(transfer.blockNumber);
-
-    const updateHero = [];
-    let issued_heroes;
-    let heroInsert;
-    let ascend;
-    let transferHistory: any;
-    transferHistory = {
-      token_id: return_value.tokenId,
-      tx_hash: transfer.transactionHash,
-      from_address: return_value.from,
-      to_address: return_value.to,
-      tx_fee: (Number(tx.gasUsed) * Number(transaction.gasPrice)) / 1e18,
-      create_time: Number(block.timestamp) * 10 ** 3,
-      block_number: transfer.blockNumber,
-    };
-    //issued
-    if (return_value.from === BURN_ADDRESS) {
+  processIssued = async (events: EventData[]) => {
+    await threadPool(events, async (event: EventData) => {
+      const { tokenId, from, to } = event.returnValues;
+      logger.debug(`${this.name} issued hero ${tokenId}`);
+      let issued_heroes;
+      const web3 = getWeb3();
+      const nftContract = contract_transfer();
+      const transaction = await web3.eth.getTransaction(event.transactionHash);
+      const tx = await web3.eth.getTransactionReceipt(event.transactionHash);
+      const block = await web3.eth.getBlock(event.blockNumber);
       const latestLog = tx.logs[tx.logs.length - 1];
       if (latestLog.topics[0] === TOPICS.SUMMON) {
         const result = web3.eth.abi.decodeParameters(
@@ -72,13 +68,13 @@ export class HeroTransferJob extends BaseJob {
           latestLog.data,
         );
         issued_heroes = {
-          token_id: return_value.tokenId,
+          token_id: tokenId,
           type: "SUMMON",
           type_issued: result[5],
         };
       } else {
         issued_heroes = {
-          token_id: return_value.tokenId,
+          token_id: tokenId,
           type: "OPEN_PACK",
         };
       }
@@ -91,22 +87,20 @@ export class HeroTransferJob extends BaseJob {
       ) {
         const heroService = new TransferHeroService();
         const issuedHeroInDay = await heroService.getHeroSummon(
-          return_value.to,
+          to,
           hero_data?.tierBasic,
         );
         let msg = null;
         const listToken = issuedHeroInDay.map((h) => h.token_id);
-        if (!listToken.includes(return_value.tokenId)) {
-          listToken.push(return_value.tokenId);
+        if (!listToken.includes(tokenId)) {
+          listToken.push(tokenId);
         }
         if (hero_data?.tierBasic === "Rare" && listToken.length > 2) {
           msg = `Summon ${
             listToken.length
           } Rare heroes from shard in 24h detected.
             Heroes summon in 24h: ${listToken.join(",")}
-            Wallet: [${return_value.to}](https://bscscan.com/address/${
-            return_value.to
-          })
+            Wallet: [${to}](https://bscscan.com/address/${to})
           `;
         }
         if (hero_data?.tierBasic === "Epic" && listToken.length > 1) {
@@ -114,9 +108,7 @@ export class HeroTransferJob extends BaseJob {
             listToken.length
           } Epic heroes from shard in 24h detected.
             Heroes summon in 24h: ${listToken.join(",")}
-            Wallet: [${return_value.to}](https://bscscan.com/address/${
-            return_value.to
-          })
+            Wallet: [${to}](https://bscscan.com/address/${to})
           `;
         }
         if (msg) {
@@ -124,7 +116,16 @@ export class HeroTransferJob extends BaseJob {
           await send_message(msg);
         }
       }
-      heroInsert = {
+      const transferHistory = {
+        token_id: tokenId,
+        tx_hash: event.transactionHash,
+        from_address: from,
+        to_address: to,
+        tx_fee: (Number(tx.gasUsed) * Number(transaction.gasPrice)) / 1e18,
+        create_time: Number(block.timestamp) * 10 ** 3,
+        block_number: event.blockNumber,
+      };
+      const heroInsert = {
         token_id: issued_heroes.token_id,
         name: hero_data?.name,
         tier: hero_data?.tier,
@@ -136,42 +137,47 @@ export class HeroTransferJob extends BaseJob {
         is_burned: false,
         type: issued_heroes.type,
         type_issued: issued_heroes?.type_issued,
-        owner: return_value.to,
-        tx_hash: transfer.transactionHash,
-        block_number: transfer.blockNumber,
+        owner: to,
+        tx_hash: event.transactionHash,
+        block_number: event.blockNumber,
       };
-    }
-    // ascend
-    else if (return_value.to === BURN_ADDRESS) {
-      const latestLog = tx.logs[tx.logs.length - 1];
-      //ascend hero
-      if (latestLog.topics[0] === TOPICS.ASCEND_TOPIC) {
-        const result = web3.eth.abi.decodeParameters(
-          ["address", "uint256", "string"],
-          latestLog.data,
-        );
-        updateHero.push({
-          token_id: result[1],
-          tier: result[2],
-          block_number: transfer.blockNumber,
-        });
-        ascend = {
-          token_id: result[1],
-          tier: result[2],
-          tx_hash: transfer.transactionHash,
-          block_number: transfer.blockNumber,
-          timestamp: Number(block.timestamp) * 10 ** 3,
-          food: return_value.tokenId,
-        };
-      }
-      //current hero
-      updateHero.push({
-        token_id: return_value.tokenId,
-        is_burned: true,
-        owner: return_value.to,
-        block_number: transfer.blockNumber,
-      });
-    } else {
+      await createIfNotExist(
+        HeroV2,
+        {
+          token_id: heroInsert.token_id,
+          tx_hash: event.transactionHash,
+        },
+        heroInsert,
+      );
+      await createIfNotExist(
+        TransferHero,
+        {
+          token_id: tokenId,
+          tx_hash: event.transactionHash,
+        },
+        transferHistory,
+      );
+    });
+  };
+
+  processTransfer = async (events: EventData[]) => {
+    await threadPool(events, async (event: EventData) => {
+      const { from, to, tokenId } = event.returnValues;
+      logger.debug(`${this.name} update owner of ${tokenId} to ${to}`);
+      const web3 = getWeb3();
+      const transaction = await web3.eth.getTransaction(event.transactionHash);
+      const tx = await web3.eth.getTransactionReceipt(event.transactionHash);
+      const block = await web3.eth.getBlock(event.blockNumber);
+      const transferHistory = {
+        token_id: tokenId,
+        tx_hash: event.transactionHash,
+        from_address: from,
+        to_address: to,
+        tx_fee: (Number(tx.gasUsed) * Number(transaction.gasPrice)) / 1e18,
+        create_time: Number(block.timestamp) * 10 ** 3,
+        block_number: event.blockNumber,
+        buy_on_mp: false,
+      };
       const latestLog = tx.logs[tx.logs.length - 1];
       if (
         latestLog.topics[0] === TOPICS.MATCH_TX ||
@@ -180,80 +186,110 @@ export class HeroTransferJob extends BaseJob {
       ) {
         transferHistory.buy_on_mp = true;
       }
-      updateHero.push({
-        token_id: return_value.tokenId,
-        owner: return_value.to,
-        block_number: transfer.blockNumber,
-      });
-    }
-
-    if (updateHero.length > 0) {
-      for (let i = 0; i < updateHero.length; i++) {
-        await HeroV2.update(updateHero[i], {
+      await createIfNotExist(
+        TransferHero,
+        {
+          token_id: tokenId,
+          tx_hash: event.transactionHash,
+        },
+        transferHistory,
+      );
+      await HeroV2.update(
+        {
+          owner: to,
+          block_number: event.blockNumber,
+        },
+        {
           where: {
-            token_id: updateHero[i].token_id,
+            token_id: tokenId,
             block_number: {
-              [Op.lte]: updateHero[i].block_number,
+              [Op.lte]: event.blockNumber,
             },
           },
-        });
-        // if (number < 1) {
-        //   try {
-        //     await HeroV2.create({
-        //       ...updateHero[i],
-        //       tx_hash: transfer.transactionHash,
-        //     });
-        //   } catch (error) {
-        //     if (error.name !== SequelizeUniqueConstraintError) {
-        //       throw error;
-        //     }
-        //   }
-        // }
-        if (updateHero[i].owner)
-          logger.debug(
-            `${this.name} update owner of ${updateHero[i].token_id} to ${updateHero[i].owner}`,
-          );
-        else
-          logger.debug(
-            `${this.name} issued hero ${updateHero[i].token_id} - ${updateHero[i].tier}`,
-          );
-      }
-    }
-    if (heroInsert) {
-      await createIfNotExist(
-        HeroV2,
-        {
-          token_id: heroInsert.token_id,
-          tx_hash: transfer.transactionHash,
         },
-        heroInsert,
       );
-      logger.debug(`${this.name} issued hero ${heroInsert.token_id}`);
-    }
-    if (ascend) {
-      await createIfNotExist(
-        AscendHistory,
-        {
-          token_id: ascend.token_id,
-          tx_hash: transfer.transactionHash,
-          food: ascend.food,
-        },
-        ascend,
-      );
-      logger.debug(
-        `${this.name} issued hero ${ascend.token_id} - ${ascend.tier}`,
-      );
-    }
+    });
+  };
 
-    // if (transferHistory) {
-    await createIfNotExist(
-      TransferHero,
-      {
-        token_id: return_value.tokenId,
-        tx_hash: transfer.transactionHash,
-      },
-      transferHistory,
-    );
-    // }
+  processBurn = async (events: EventData[]) => {
+    await threadPool(events, async (event: EventData) => {
+      const { from, to, tokenId } = event.returnValues;
+      logger.debug(`${this.name} burn ${tokenId} `);
+      const web3 = getWeb3();
+      const transaction = await web3.eth.getTransaction(event.transactionHash);
+      const tx = await web3.eth.getTransactionReceipt(event.transactionHash);
+      const block = await web3.eth.getBlock(event.blockNumber);
+      const transferHistory = {
+        token_id: tokenId,
+        tx_hash: event.transactionHash,
+        from_address: from,
+        to_address: to,
+        tx_fee: (Number(tx.gasUsed) * Number(transaction.gasPrice)) / 1e18,
+        create_time: Number(block.timestamp) * 10 ** 3,
+        block_number: event.blockNumber,
+      };
+      await createIfNotExist(
+        TransferHero,
+        {
+          token_id: tokenId,
+          tx_hash: event.transactionHash,
+        },
+        transferHistory,
+      );
+      await HeroV2.update(
+        {
+          is_burned: true,
+          owner: to,
+          block_number: event.blockNumber,
+        },
+        {
+          where: {
+            token_id: tokenId,
+          },
+        },
+      );
+
+      //ascend
+      const latestLog = tx.logs[tx.logs.length - 1];
+      //ascend hero
+      if (latestLog.topics[0] === TOPICS.ASCEND_TOPIC) {
+        const result = web3.eth.abi.decodeParameters(
+          ["address", "uint256", "string"],
+          latestLog.data,
+        );
+        await HeroV2.update(
+          {
+            token_id: result[1],
+            tier: result[2],
+            block_number: event.blockNumber,
+          },
+          {
+            where: {
+              token_id: tokenId,
+            },
+          },
+        );
+        const ascend = {
+          token_id: result[1],
+          tier: result[2],
+          tx_hash: event.transactionHash,
+          block_number: event.blockNumber,
+          timestamp: Number(block.timestamp) * 10 ** 3,
+          food: tokenId,
+        };
+        await createIfNotExist(
+          AscendHistory,
+          {
+            token_id: ascend.token_id,
+            tx_hash: event.transactionHash,
+            food: ascend.food,
+          },
+          ascend,
+        );
+        logger.debug(
+          `${this.name} ascend hero ${ascend.token_id} - ${ascend.tier}`,
+        );
+      }
+    });
   };
 }

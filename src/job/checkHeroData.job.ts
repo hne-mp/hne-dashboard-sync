@@ -28,11 +28,7 @@ export class CheckInGameData extends BaseJob {
     );
     this.setLatestBlock(fromBlock);
     const blockchain_height = await getWeb3().eth.getBlockNumber();
-    const latest =
-      list_transfer.length > 0
-        ? list_transfer[list_transfer.length - 1].blockNumber
-        : 0;
-    if (latest === 0 || latest > blockchain_height - 100) {
+    if (fromBlock > blockchain_height - 100) {
       throw new Error(`${this.name} delay 100 block`);
     }
     await threadPool(list_transfer, this.checkInGame);
