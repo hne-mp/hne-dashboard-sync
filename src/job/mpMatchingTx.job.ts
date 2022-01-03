@@ -53,16 +53,16 @@ export class MpMatchingTxJob extends BaseJob {
         ? await nftContract.methods.heroesNumber(tokenId).call()
         : {};
     const priceFromWei = web3.utils.fromWei(price);
-    if (Number(priceFromWei) < 10) {
-      await send_message(`
-        [Marketplace] matching transaction - detect low price ( < 10 HE).
-         TokenID: ${tokenId},
-         Price: ${priceFromWei}HE,
-        [View on bscscan](${
-          "https://bscscan.com/tx/" + transfer.transactionHash
-        })
-      `);
-    }
+    // if (Number(priceFromWei) < 10) {
+    //   await send_message(`
+    //     [Marketplace] matching transaction - detect low price ( < 10 HE).
+    //      TokenID: ${tokenId},
+    //      Price: ${priceFromWei}HE,
+    //     [View on bscscan](${
+    //       "https://bscscan.com/tx/" + transfer.transactionHash
+    //     })
+    //   `);
+    // }
     try {
       let obj = {
         token_id: tokenId,
