@@ -259,7 +259,6 @@ export class HeroTransferJob extends BaseJob {
         );
         await HeroV2.update(
           {
-            token_id: result[1],
             tier: result[2],
             block_number: event.blockNumber,
           },
