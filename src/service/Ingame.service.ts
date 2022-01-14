@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig } from "axios";
+import * as queryString from "query-string";
 import config from "../config";
 
 const client = axios.create({
@@ -29,11 +30,29 @@ const heSpend = async (from: string, to: string): Promise<IInGameSpend> =>
 const heEarn = async (from: string, to: string): Promise<IInGameEarn> =>
   await client.get(`/heroes-empires/earn/${from}/${to}`);
 
-const heSpendNew = async (from: string, to: string): Promise<IRowData> =>
-  await client.get(`/heroes-empires/playfab/spend/${from}/${to}`);
+const heSpendNew = async (from: string, to: string): Promise<IRowData> => {
+  const data = queryString.stringify({
+    startDate: from,
+    endDate: to,
+    queryPlatform: "playfab",
+    queryName: "spend",
+  });
+  return await client.post(`/heroes-empires/dataquery`, data, {
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+  });
+};
 
-const heEarnNew = async (from: string, to: string): Promise<IRowData> =>
-  await client.get(`/heroes-empires/playfab/earn/${from}/${to}`);
+const heEarnNew = async (from: string, to: string): Promise<IRowData> => {
+  const data = queryString.stringify({
+    startDate: from,
+    endDate: to,
+    queryPlatform: "playfab",
+    queryName: "earn",
+  });
+  return await client.post(`/heroes-empires/dataquery`, data, {
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+  });
+};
 
 export interface IInGameEarn {
   Rows: {
