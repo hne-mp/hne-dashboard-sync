@@ -402,12 +402,12 @@ class SnapshotService {
 
   async snapshotSpendEarnInGame() {
     const now = new Date();
-    const fromDateString = `${now.getFullYear()}${now.getMonth() + 1}${
+    const fromDateString = `${now.getFullYear()}-${now.getMonth() + 1}-${
       now.getDate() - 1
     }`;
-    const toDateString = `${now.getFullYear()}${
+    const toDateString = `${now.getFullYear()}-${
       now.getMonth() + 1
-    }${now.getDate()}`;
+    }-${now.getDate()}`;
     // const spend = await IngameService.heSpend(fromDateString, toDateString);
     // const earn = await IngameService.heEarn(fromDateString, toDateString);
     const spend = await IngameService.heSpendNew(fromDateString, toDateString);
