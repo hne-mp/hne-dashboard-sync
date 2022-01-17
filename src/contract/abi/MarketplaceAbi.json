@@ -48,12 +48,6 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "paymentToken",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
         "name": "seller",
         "type": "address"
       },
@@ -108,9 +102,9 @@
   {
     "inputs": [
       {
-        "internalType": "address[3]",
+        "internalType": "address[2]",
         "name": "addresses",
-        "type": "address[3]"
+        "type": "address[2]"
       },
       { "internalType": "uint256[3]", "name": "values", "type": "uint256[3]" },
       { "internalType": "bytes", "name": "signature", "type": "bytes" }
@@ -123,24 +117,16 @@
   {
     "inputs": [],
     "name": "feeToAddress",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "bytes32", "name": "_messageHash", "type": "bytes32" }
+    "outputs": [
+      { "internalType": "address payable", "name": "", "type": "address" }
     ],
-    "name": "getEthSignedMessageHash",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       { "internalType": "address", "name": "_nftAddress", "type": "address" },
       { "internalType": "uint256", "name": "_tokenId", "type": "uint256" },
-      { "internalType": "address", "name": "_paymentErc20", "type": "address" },
       { "internalType": "uint256", "name": "_price", "type": "uint256" },
       { "internalType": "uint256", "name": "_saltNonce", "type": "uint256" }
     ],
@@ -152,16 +138,16 @@
   {
     "inputs": [
       {
-        "internalType": "address[3]",
+        "internalType": "address[2]",
         "name": "addresses",
-        "type": "address[3]"
+        "type": "address[2]"
       },
       { "internalType": "uint256[3]", "name": "values", "type": "uint256[3]" },
       { "internalType": "bytes", "name": "signature", "type": "bytes" }
     ],
     "name": "matchTransaction",
     "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -172,44 +158,10 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "name": "paymentTokens",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "period",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_ethSignedMessageHash",
-        "type": "bytes32"
-      },
-      { "internalType": "bytes", "name": "_signature", "type": "bytes" }
-    ],
-    "name": "recoverSigner",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address[]",
-        "name": "_removedPaymentTokens",
-        "type": "address[]"
-      }
-    ],
-    "name": "removePaymentTokens",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -230,22 +182,13 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "_feeToAddress", "type": "address" }
-    ],
-    "name": "setFeeToAddress",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
       {
-        "internalType": "address[]",
-        "name": "_paymentTokens",
-        "type": "address[]"
+        "internalType": "address payable",
+        "name": "_feeToAddress",
+        "type": "address"
       }
     ],
-    "name": "setPaymentTokens",
+    "name": "setFeeToAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -270,17 +213,6 @@
     "name": "setTransactionFee",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "bytes", "name": "sig", "type": "bytes" }],
-    "name": "splitSignature",
-    "outputs": [
-      { "internalType": "bytes32", "name": "r", "type": "bytes32" },
-      { "internalType": "bytes32", "name": "s", "type": "bytes32" },
-      { "internalType": "uint8", "name": "v", "type": "uint8" }
-    ],
-    "stateMutability": "pure",
     "type": "function"
   },
   {

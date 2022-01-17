@@ -51,7 +51,7 @@ MatchTransaction.init(
   {
     // Other model options go here
     sequelize: connection, // We need to pass the connection instance
-    modelName: "MatchTransaction", // We need to choose the model name
+    modelName: "MatchTransactionV2", // We need to choose the model name
     indexes: [
       {
         fields: ["block_number"],
