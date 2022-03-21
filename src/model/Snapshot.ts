@@ -18,11 +18,6 @@ Snapshot.init(
     // Other model options go here
     sequelize: connection, // We need to pass the connection instance
     modelName: "Snapshot", // We need to choose the model name
-    indexes: [
-      {
-        fields: ["key", "group", "createdAt"],
-      },
-    ],
   },
 );
 

@@ -45,21 +45,6 @@ TransferGear.init(
     modelName: "TransferGear", // We need to choose the model name
     indexes: [
       {
-        fields: ["block_number"],
-      },
-      {
-        fields: ["from_address"],
-      },
-      {
-        fields: ["to_address"],
-      },
-      {
-        fields: ["create_time"],
-      },
-      {
-        fields: ["buy_on_mp"],
-      },
-      {
         fields: ["tx_hash", "token_id"],
         unique: true,
       },

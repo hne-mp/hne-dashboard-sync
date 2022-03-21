@@ -23,9 +23,6 @@ HeroCheck.init(
     modelName: "HeroCheck", // We need to choose the model name
     indexes: [
       {
-        fields: ["block_number"],
-      },
-      {
         fields: ["tx_hash", "token_id"],
         unique: true,
       },

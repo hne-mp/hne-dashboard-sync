@@ -38,18 +38,6 @@ HotWalletTransfer.init(
     modelName: "HotWalletTransfer", // We need to choose the model name
     indexes: [
       {
-        fields: ["block_number"],
-      },
-      {
-        fields: ["from_address"],
-      },
-      {
-        fields: ["create_time"],
-      },
-      {
-        fields: ["type"],
-      },
-      {
         fields: ["tx_hash", "to_address"],
         unique: true,
       },

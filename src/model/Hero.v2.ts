@@ -53,40 +53,6 @@ HeroV2.init(
     modelName: "HeroV2", // We need to choose the model name
     indexes: [
       {
-        fields: ["hero_number"],
-      },
-      {
-        fields: ["name"],
-      },
-      {
-        fields: ["race"],
-      },
-      {
-        fields: ["tier"],
-      },
-      {
-        fields: ["tier_basic"],
-      },
-      {
-        fields: ["class"],
-      },
-      {
-        fields: ["is_burned"],
-      },
-      {
-        fields: ["type"],
-      },
-      {
-        fields: ["type_issued"],
-      },
-      {
-        fields: ["owner"],
-      },
-      {
-        fields: ["block_number"],
-      },
-
-      {
         fields: ["token_id", "tx_hash"],
         unique: true,
       },

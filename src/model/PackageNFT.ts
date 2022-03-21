@@ -38,22 +38,6 @@ PackageNFT.init(
     modelName: "PackageNFT", // We need to choose the model name
     indexes: [
       {
-        fields: ["create_time"],
-      },
-      {
-        fields: ["block_number"],
-      },
-      {
-        fields: ["from_address"],
-      },
-      {
-        fields: ["to_address"],
-      },
-      {
-        fields: ["address"],
-      },
-
-      {
         fields: ["tx_hash", "token_id"],
         unique: true,
       },

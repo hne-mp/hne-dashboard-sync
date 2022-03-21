@@ -24,16 +24,61 @@ export default {
   initModel: async () => {
     try {
       await TransferGear.sync();
+    } catch (error) {
+      logger.error(error);
+    }
+    try {
       await Gear.sync();
+    } catch (error) {
+      logger.error(error);
+    }
+    try {
       await HeroV2.sync();
+    } catch (error) {
+      logger.error(error);
+    }
+    try {
       await MatchTransaction.sync();
+    } catch (error) {
+      logger.error(error);
+    }
+    try {
       await Snapshot.sync();
+    } catch (error) {
+      logger.error(error);
+    }
+    try {
       await HeroCheck.sync();
+    } catch (error) {
+      logger.error(error);
+    }
+    try {
       await HotWalletTransfer.sync();
+    } catch (error) {
+      logger.error(error);
+    }
+
+    try {
       await Logs.sync();
+    } catch (error) {
+      logger.error(error);
+    }
+    try {
       await PackageNFT.sync();
+    } catch (error) {
+      logger.error(error);
+    }
+    try {
       await TransferHero.sync();
+    } catch (error) {
+      logger.error(error);
+    }
+    try {
       await Wallet.sync();
+    } catch (error) {
+      logger.error(error);
+    }
+    try {
       await AscendHistory.sync();
     } catch (error) {
       logger.error(error);

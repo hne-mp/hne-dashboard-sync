@@ -53,30 +53,6 @@ Gear.init(
     modelName: "Gear", // We need to choose the model name
     indexes: [
       {
-        fields: ["name"],
-      },
-      {
-        fields: ["type"],
-      },
-      {
-        fields: ["class"],
-      },
-      {
-        fields: ["tier"],
-      },
-      {
-        fields: ["tier_basic"],
-      },
-      {
-        fields: ["is_burned"],
-      },
-      {
-        fields: ["owner"],
-      },
-      {
-        fields: ["block_number"],
-      },
-      {
         fields: ["token_id", "tx_hash"],
         unique: true,
       },

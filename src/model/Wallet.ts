@@ -22,11 +22,6 @@ Wallet.init(
     // Other model options go here
     sequelize: connection, // We need to pass the connection instance
     modelName: "Wallet", // We need to choose the model name
-    indexes: [
-      {
-        fields: ["he_amount", "nft_hero", "nft_pack"],
-      },
-    ],
   },
 );
 
