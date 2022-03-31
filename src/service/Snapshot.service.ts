@@ -357,7 +357,7 @@ class SnapshotService {
   }
 
   async playfab() {
-    const client = axios.create({ baseURL: config.PLAYFAB, timeout: 300000 });
+    const client = axios.create({ baseURL: config.PLAYFAB, timeout: 900000 });
     logger.info(`playfab begin snapshot`);
     const totalUser: any = (await client.get("/playfab/count_total_user")).data;
     await Snapshot.create({

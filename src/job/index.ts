@@ -80,7 +80,7 @@ export class Job {
         config.maxQuery,
       );
 
-      const snapshot = new SnapshotJob("0 10 * * * *");
+      const snapshot = new SnapshotJob("0 15 * * * *");
       const updateSystemConfigJob = new UpdateSystemConfigJob("*/6 * * * * *");
 
       Job.jobs.push(transferJob);
