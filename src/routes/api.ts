@@ -122,7 +122,12 @@ router.get("/snapShotInGame", async function (req: any, res: any, next: any) {
 router.get("/get-ingame-data", async function (req: any, res: any, next: any) {
   try {
     const { from, to, queryName, queryPlatform } = req.query;
-    const rs = await IngameService.ingameData(from, to, queryName);
+    const rs = await IngameService.ingameData(
+      from,
+      to,
+      queryName,
+      queryPlatform ?? "playfab",
+    );
     res.status(200).json(rs);
   } catch (error) {
     logger.error(error);
