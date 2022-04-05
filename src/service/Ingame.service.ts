@@ -66,6 +66,23 @@ const heShards = async (from: string, to: string): Promise<IRowData> => {
   });
 };
 
+const ingameData = async (
+  from: string,
+  to: string,
+  queryName = "shard",
+  queryPlatform = "playfab",
+): Promise<IRowData> => {
+  const data = queryString.stringify({
+    startDate: from,
+    endDate: to,
+    queryPlatform,
+    queryName,
+  });
+  return await client.post(`/heroes-empires/dataquery`, data, {
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+  });
+};
+
 export interface IInGameEarn {
   Rows: {
     date: {
@@ -97,4 +114,5 @@ export default {
   heSpendNew,
   heEarnNew,
   heShards,
+  ingameData,
 };

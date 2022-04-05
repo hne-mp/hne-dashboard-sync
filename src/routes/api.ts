@@ -119,18 +119,15 @@ router.get("/snapShotInGame", async function (req: any, res: any, next: any) {
   }
 });
 
-router.get(
-  "/get-playfab-shard",
-  async function (req: any, res: any, next: any) {
-    try {
-      const { from, to } = req.query;
-      const shards = await IngameService.heShards(from, to);
-      res.status(200).json(shards);
-    } catch (error) {
-      logger.error(error);
-      res.status(500).send();
-    }
-  },
-);
+router.get("/get-ingame-data", async function (req: any, res: any, next: any) {
+  try {
+    const { from, to, queryName, queryPlatform } = req.query;
+    const rs = await IngameService.ingameData(from, to, queryName);
+    res.status(200).json(rs);
+  } catch (error) {
+    logger.error(error);
+    res.status(500).send();
+  }
+});
 
 export default router;
