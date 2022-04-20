@@ -58,9 +58,9 @@ export class HeroTransferJob extends BaseJob {
       let issued_heroes;
       const web3 = getWeb3();
       const nftContract = contract_transfer();
-      const transaction = await web3.eth.getTransaction(event.transactionHash);
+      // const transaction = await web3.eth.getTransaction(event.transactionHash);
       const tx = await web3.eth.getTransactionReceipt(event.transactionHash);
-      const block = await web3.eth.getBlock(event.blockNumber);
+      // const block = await web3.eth.getBlock(event.blockNumber);
       const latestLog = tx.logs[tx.logs.length - 1];
       if (latestLog.topics[0] === TOPICS.SUMMON) {
         const result = web3.eth.abi.decodeParameters(
@@ -121,8 +121,8 @@ export class HeroTransferJob extends BaseJob {
         tx_hash: event.transactionHash,
         from_address: from,
         to_address: to,
-        tx_fee: (Number(tx.gasUsed) * Number(transaction.gasPrice)) / 1e18,
-        create_time: Number(block.timestamp) * 10 ** 3,
+        // tx_fee: (Number(tx.gasUsed) * Number(transaction.gasPrice)) / 1e18,
+        create_time: Date.now(),
         block_number: event.blockNumber,
       };
       const heroInsert = {
@@ -165,16 +165,16 @@ export class HeroTransferJob extends BaseJob {
       const { from, to, tokenId } = event.returnValues;
       logger.debug(`${this.name} update owner of ${tokenId} to ${to}`);
       const web3 = getWeb3();
-      const transaction = await web3.eth.getTransaction(event.transactionHash);
+      // const transaction = await web3.eth.getTransaction(event.transactionHash);
       const tx = await web3.eth.getTransactionReceipt(event.transactionHash);
-      const block = await web3.eth.getBlock(event.blockNumber);
+      // const block = await web3.eth.getBlock(event.blockNumber);
       const transferHistory = {
         token_id: tokenId,
         tx_hash: event.transactionHash,
         from_address: from,
         to_address: to,
-        tx_fee: (Number(tx.gasUsed) * Number(transaction.gasPrice)) / 1e18,
-        create_time: Number(block.timestamp) * 10 ** 3,
+        // tx_fee: (Number(tx.gasUsed) * Number(transaction.gasPrice)) / 1e18,
+        create_time: Date.now(),
         block_number: event.blockNumber,
         buy_on_mp: false,
       };
@@ -216,16 +216,16 @@ export class HeroTransferJob extends BaseJob {
       const { from, to, tokenId } = event.returnValues;
       logger.debug(`${this.name} burn ${tokenId} `);
       const web3 = getWeb3();
-      const transaction = await web3.eth.getTransaction(event.transactionHash);
+      // const transaction = await web3.eth.getTransaction(event.transactionHash);
       const tx = await web3.eth.getTransactionReceipt(event.transactionHash);
-      const block = await web3.eth.getBlock(event.blockNumber);
+      // const block = await web3.eth.getBlock(event.blockNumber);
       const transferHistory = {
         token_id: tokenId,
         tx_hash: event.transactionHash,
         from_address: from,
         to_address: to,
-        tx_fee: (Number(tx.gasUsed) * Number(transaction.gasPrice)) / 1e18,
-        create_time: Number(block.timestamp) * 10 ** 3,
+        // tx_fee: (Number(tx.gasUsed) * Number(transaction.gasPrice)) / 1e18,
+        create_time: Date.now(),
         block_number: event.blockNumber,
       };
       await createIfNotExist(
@@ -273,7 +273,7 @@ export class HeroTransferJob extends BaseJob {
           tier: result[2],
           tx_hash: event.transactionHash,
           block_number: event.blockNumber,
-          timestamp: Number(block.timestamp) * 10 ** 3,
+          timestamp: Date.now(),
           food: tokenId,
         };
         await createIfNotExist(
