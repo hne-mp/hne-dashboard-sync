@@ -84,7 +84,7 @@ export class Job {
       const updateSystemConfigJob = new UpdateSystemConfigJob("*/6 * * * * *");
 
       Job.jobs.push(transferJob);
-      Job.jobs.push(checkHeroData);
+      // Job.jobs.push(checkHeroData);
       Job.jobs.push(heTransfer);
       Job.jobs.push(matchingTx);
       Job.jobs.push(packNftJob);
