@@ -55,6 +55,15 @@ export class HeroTransferJob extends BaseJob {
     await threadPool(events, async (event: EventData) => {
       const { tokenId, from, to } = event.returnValues;
       logger.debug(`${this.name} issued hero ${tokenId}`);
+      const transferDb = await TransferHero.findOne({
+        where: {
+          tx_hash: event.transactionHash,
+          token_id: tokenId,
+        },
+      });
+      if (transferDb) {
+        return;
+      }
       let issued_heroes;
       const web3 = getWeb3();
       const nftContract = contract_transfer();
@@ -164,6 +173,15 @@ export class HeroTransferJob extends BaseJob {
     await threadPool(events, async (event: EventData) => {
       const { from, to, tokenId } = event.returnValues;
       logger.debug(`${this.name} update owner of ${tokenId} to ${to}`);
+      const transferDb = await TransferHero.findOne({
+        where: {
+          tx_hash: event.transactionHash,
+          token_id: tokenId,
+        },
+      });
+      if (transferDb) {
+        return;
+      }
       const web3 = getWeb3();
       const transaction = await web3.eth.getTransaction(event.transactionHash);
       const tx = await web3.eth.getTransactionReceipt(event.transactionHash);
@@ -215,13 +233,13 @@ export class HeroTransferJob extends BaseJob {
     await threadPool(events, async (event: EventData) => {
       const { from, to, tokenId } = event.returnValues;
       logger.debug(`${this.name} burn ${tokenId} `);
-      const trasferDb = await TransferHero.findOne({
+      const transferDb = await TransferHero.findOne({
         where: {
           tx_hash: event.transactionHash,
           token_id: tokenId,
         },
       });
-      if (trasferDb) {
+      if (transferDb) {
         return;
       }
       const web3 = getWeb3();
