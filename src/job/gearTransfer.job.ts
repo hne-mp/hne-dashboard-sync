@@ -123,7 +123,7 @@ export class GearTransferJob extends BaseJob {
       const web3 = getWeb3();
       const transaction = await web3.eth.getTransaction(event.transactionHash);
       const tx = await web3.eth.getTransactionReceipt(event.transactionHash);
-
+      
       const newTransfer: ITransferGear = {
         block_number: event.blockNumber,
         buy_on_mp: false,
@@ -134,7 +134,14 @@ export class GearTransferJob extends BaseJob {
         tx_fee: (Number(tx.gasUsed) * Number(transaction.gasPrice)) / 1e18,
         tx_hash: event.transactionHash,
       };
-
+      const latestLog = tx.logs[tx.logs.length - 1];
+      if (
+        latestLog.topics[0] === TOPICS.MATCH_TX ||
+        latestLog.topics[0] === TOPICS.MATCH_TX_V2 ||
+        latestLog.topics[0] === TOPICS.WISH_ITEM
+      ) {
+        newTransfer.buy_on_mp = true;
+      }
       await createIfNotExist(
         TransferGear,
         {
