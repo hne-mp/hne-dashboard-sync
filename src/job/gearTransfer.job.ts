@@ -3,6 +3,7 @@ import { BURN_ADDRESS, TOPICS } from "../constant";
 import {
   contract_gear,
   contract_gear_ascend,
+  contract_gear_mint,
   getWeb3,
 } from "../contract/contract";
 import Gear, { IGear } from "../model/Gear";
@@ -20,7 +21,7 @@ export class GearTransferJob extends BaseJob {
       toBlock,
       topics: [TOPICS.GEAR_TRANSFER],
     });
-    const mint_events = await contract_gear_ascend().getPastEvents("mintgear", {
+    const mint_events = await contract_gear_mint().getPastEvents("mintgear", {
       fromBlock,
       toBlock,
       topics: [TOPICS.MINT_GEAR],
