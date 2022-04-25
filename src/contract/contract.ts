@@ -2,6 +2,7 @@ import Web3 from "web3";
 import { AbiItem } from "web3-utils";
 import config from "../config";
 import { default as ascendGearNftAbi } from "./abi/AscendGearAbi.json";
+import { default as mintGearNftAbi } from "./abi/MintGearAbi.json";
 import { default as gearNftAbi } from "./abi/GearNftAbi.json";
 import { default as heroTransferAbi } from "./abi/HeroesNFT.json";
 import { default as heAbi } from "./abi/HeToken.abi.json";
@@ -27,6 +28,11 @@ export const contract_gear_ascend = () =>
     ascendGearNftAbi as AbiItem[],
     config.CONTRACT.GEAR_NFT_ASCEND_ADDRESS,
   );
+  export const contract_gear_mint = () =>
+    new (getWeb3().eth.Contract)(
+      mintGearNftAbi as AbiItem[],
+      config.CONTRACT.GEAR_NFT_MINT_ADDRESS,
+    );
 
 export const contract_he = () =>
   new (getWeb3().eth.Contract)(
