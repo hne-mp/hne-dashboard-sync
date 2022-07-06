@@ -5,7 +5,7 @@ import { contract_transfer, getWeb3 } from "../contract/contract";
 import AscendHistory from "../model/AscendHistory";
 import HeroV2 from "../model/Hero.v2";
 import TransferHero from "../model/TransferHero";
-import { createIfNotExist } from "../service/Common.service";
+import { createIfNotExist, updateOrCreate } from "../service/Common.service";
 import { send_message } from "../service/Telegram.Bot";
 import { TransferHeroService } from "../service/TransferHero.service";
 import { logger } from "../utils/logger";
@@ -204,7 +204,7 @@ export class HeroTransferJob extends BaseJob {
       ) {
         transferHistory.buy_on_mp = true;
       }
-      await createIfNotExist(
+      await updateOrCreate(
         TransferHero,
         {
           token_id: tokenId,
