@@ -48,6 +48,12 @@
       {
         "indexed": false,
         "internalType": "address",
+        "name": "paymentToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
         "name": "seller",
         "type": "address"
       },
@@ -102,9 +108,9 @@
   {
     "inputs": [
       {
-        "internalType": "address[2]",
+        "internalType": "address[3]",
         "name": "addresses",
-        "type": "address[2]"
+        "type": "address[3]"
       },
       { "internalType": "uint256[3]", "name": "values", "type": "uint256[3]" },
       { "internalType": "bytes", "name": "signature", "type": "bytes" }
@@ -127,6 +133,7 @@
     "inputs": [
       { "internalType": "address", "name": "_nftAddress", "type": "address" },
       { "internalType": "uint256", "name": "_tokenId", "type": "uint256" },
+      { "internalType": "address", "name": "_paymentErc20", "type": "address" },
       { "internalType": "uint256", "name": "_price", "type": "uint256" },
       { "internalType": "uint256", "name": "_saltNonce", "type": "uint256" }
     ],
@@ -138,9 +145,9 @@
   {
     "inputs": [
       {
-        "internalType": "address[2]",
+        "internalType": "address[3]",
         "name": "addresses",
-        "type": "address[2]"
+        "type": "address[3]"
       },
       { "internalType": "uint256[3]", "name": "values", "type": "uint256[3]" },
       { "internalType": "bytes", "name": "signature", "type": "bytes" }
@@ -158,10 +165,30 @@
     "type": "function"
   },
   {
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "name": "paymentTokens",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "period",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "_removedPaymentTokens",
+        "type": "address[]"
+      }
+    ],
+    "name": "removePaymentTokens",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -189,6 +216,19 @@
       }
     ],
     "name": "setFeeToAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "_paymentTokens",
+        "type": "address[]"
+      }
+    ],
+    "name": "setPaymentTokens",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
