@@ -197,12 +197,16 @@ export class HeroTransferJob extends BaseJob {
         buy_on_mp: false,
       };
       const latestLog = tx.logs[tx.logs.length - 1];
+      logger.debug(
+        `${tokenId} - ${transferHistory.tx_hash} - ${latestLog.topics[0]}`,
+      );
       if (
         latestLog.topics[0] === TOPICS.MATCH_TX ||
         latestLog.topics[0] === TOPICS.MATCH_TX_V2 ||
         latestLog.topics[0] === TOPICS.WISH_ITEM
       ) {
         transferHistory.buy_on_mp = true;
+        logger.debug(`${tokenId} - ${transferHistory.tx_hash} - buy_on_mp`);
       }
       await updateOrCreate(
         TransferHero,
