@@ -173,15 +173,15 @@ export class HeroTransferJob extends BaseJob {
     await threadPool(events, async (event: EventData) => {
       const { from, to, tokenId } = event.returnValues;
       logger.debug(`${this.name} update owner of ${tokenId} to ${to}`);
-      const transferDb = await TransferHero.findOne({
-        where: {
-          tx_hash: event.transactionHash,
-          token_id: tokenId,
-        },
-      });
-      if (transferDb) {
-        return;
-      }
+      // const transferDb = await TransferHero.findOne({
+      //   where: {
+      //     tx_hash: event.transactionHash,
+      //     token_id: tokenId,
+      //   },
+      // });
+      // if (transferDb) {
+      //   return;
+      // }
       const web3 = getWeb3();
       const transaction = await web3.eth.getTransaction(event.transactionHash);
       const tx = await web3.eth.getTransactionReceipt(event.transactionHash);
