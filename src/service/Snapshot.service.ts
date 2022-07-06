@@ -41,7 +41,12 @@ export const snapshotKey = {
   SPEND_HE_INGAME: "SPEND_HE_INGAME_V2",
   EARN_HE_INGAME: "EARN_HE_INGAME_V2",
 };
-
+const mpClient = axios.create({
+  baseURL: config.MARKETPLACE_API,
+  headers: {
+    "x-api-key": config.MP_X_API_KEY,
+  },
+});
 class SnapshotService {
   /**
    *
@@ -335,10 +340,13 @@ class SnapshotService {
   }
 
   async update_marketplace_listing() {
-    const listing = (
-      await axios.get(
-        `${config.MARKETPLACE_API}/market/api/market-data/statistic`,
-      )
+    // const listing = (
+    //   await axios.get(
+    //     `${config.MARKETPLACE_API}/market/api/market-data/statistic`,
+    //   )
+    // ).data;
+    const listing = await (
+      await mpClient.get("/market/api/market-data/statistic")
     ).data;
     await Snapshot.bulkCreate([
       {

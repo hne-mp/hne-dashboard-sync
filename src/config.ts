@@ -21,6 +21,7 @@ const config = {
   MARKETPLACE_API: process.env.MARKETPLACE_API,
   INGAME_QUERY_API: process.env.INGAME_QUERY_API,
   INGAME_QUERY_API_SECRET: process.env.INGAME_QUERY_API_SECRET,
+  MP_X_API_KEY: process.env.MP_X_API_KEY,
   PLAYFAB: process.env.PLAYFAB ?? "http://localhost:5050",
   bot: {
     BOT_TOKEN: process.env.BOT_TOKEN,
