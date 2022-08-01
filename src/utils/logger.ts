@@ -31,30 +31,6 @@ const logger = winston.createLogger({
       return `[${log.timestamp}] [${log.level}] ${log.message}`;
     }),
   ),
-  transports: [
-    new winston.transports.Console(),
-    // debug log setting
-    new winstonDaily({
-      level: "debug",
-      datePattern: "YYYY-MM-DD",
-      dirname: logDir + "/info", // log file /logs/debug/*.log in save
-      filename: `%DATE%.log`,
-      maxFiles: 30, // 30 Days saved
-      json: false,
-      zippedArchive: true,
-    }),
-    // error log setting
-    new winstonDaily({
-      level: "error",
-      datePattern: "YYYY-MM-DD",
-      dirname: logDir + "/error", // log file /logs/error/*.log in save
-      filename: `%DATE%.log`,
-      maxFiles: 30, // 30 Days saved
-      handleExceptions: true,
-      json: false,
-      zippedArchive: true,
-    }),
-  ],
   level: "debug",
 });
 
