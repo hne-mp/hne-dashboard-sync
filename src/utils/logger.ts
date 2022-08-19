@@ -31,6 +31,7 @@ const logger = winston.createLogger({
       return `[${log.timestamp}] [${log.level}] ${log.message}`;
     }),
   ),
+  transports: [new winston.transports.Console()],
   level: "debug",
 });
 

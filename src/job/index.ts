@@ -95,6 +95,8 @@ export class Job {
   }
   updateSystemConfigJob: CronJob;
   startJob = () => {
+    console.log('============CONFIG============');
+    console.log(JSON.stringify(config));
     Job.jobs.forEach((job) => {
       job.start();
     });
